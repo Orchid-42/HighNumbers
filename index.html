@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="description" content="High Numbers: an idle dispensary tycoon by Orchid-42.">
 <meta name="theme-color" content="#16111b">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -102,24 +102,27 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .bud .owned{position:absolute;right:-1px;bottom:-1px;background:var(--gold);color:var(--hard);font-family:var(--display);font-size:17px;line-height:1.1;padding:0 5px;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
 @keyframes pulse{50%{border-color:var(--gold)}}
 .mid{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:5px}
-.nm{display:flex;align-items:baseline;justify-content:space-between;gap:2px 8px;flex-wrap:wrap}
+.nm{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
 .nm b{font-family:var(--display);font-weight:400;font-size:23px;line-height:1}
-.nm .who{font-size:11px;color:var(--muted)}
+.nm .who{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .nm .who.on{color:var(--pink)}
 .bar{position:relative;height:24px;background:var(--well);border:1px solid var(--line);overflow:hidden}
 .bar .fill{position:absolute;inset:0 auto 0 0;width:0;background:repeating-linear-gradient(90deg,var(--violet) 0 6px,color-mix(in srgb,var(--violet) 80%,#fff) 6px 8px)}
 .bar.blur .fill{width:100%!important;animation:slide .4s linear infinite;background:repeating-linear-gradient(90deg,var(--violet) 0 10px,color-mix(in srgb,var(--violet) 70%,#fff) 10px 20px);background-size:20px 100%}
 @keyframes slide{to{background-position:20px 0}}
 .bar .rev{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:20px;color:var(--fg);text-shadow:0 1px 2px var(--hard),0 0 2px var(--hard);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;padding:0 6px}
-.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.buy{background:var(--gold);color:var(--hard);border:1px solid var(--hard);padding:1px 10px;font-family:var(--display);font-size:18px;line-height:1.2;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;text-align:left}
-.buy b{font-weight:400;font-variant-numeric:tabular-nums}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
+.buy{background:var(--gold);color:var(--hard);border:1px solid var(--hard);padding:1px 10px;font-family:var(--display);font-size:18px;line-height:1.2;display:flex;gap:8px;align-items:baseline;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;width:100%;justify-content:space-between;text-align:left}
+.buy b{font-weight:400;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.buy span{flex:0 0 auto}
+.license .buy,.card .buy{width:auto;justify-content:flex-start}
 .buy:disabled{background:var(--panel2);color:var(--muted);border-color:var(--line);cursor:not-allowed}
-.time{font-family:var(--display);font-size:19px;color:var(--smoke);font-variant-numeric:tabular-nums;margin-left:auto}
-.ms{display:flex;align-items:center;gap:4px 10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
-.ms .track{flex:1 1 60px;height:3px;background:var(--well);max-width:120px;min-width:40px}
+.time{font-family:var(--display);font-size:18px;line-height:1;color:var(--smoke);font-variant-numeric:tabular-nums;margin-left:auto;flex:0 0 auto}
+.ms{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);flex-wrap:nowrap;white-space:nowrap;min-width:0;min-height:18px}
+.ms .mt{flex:0 0 auto}
+.ms .track{flex:1 1 40px;height:3px;background:var(--well);max-width:110px;min-width:16px}
 .ms .track i{display:block;height:100%;background:var(--gold);width:0}
-.ms .syn{color:var(--violet)}
+.ms .syn{color:var(--violet);overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
 .pop{position:absolute;left:2px;top:4px;font-family:var(--display);font-size:19px;color:var(--gold);text-shadow:1px 1px 0 var(--hard);pointer-events:none;white-space:nowrap;animation:rise .9s ease-out forwards;z-index:2}
 @keyframes rise{to{transform:translateY(-34px);opacity:0}}
 
@@ -163,9 +166,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ghost{background:transparent;border:1px solid var(--line);color:var(--muted);padding:1px 10px;font-family:var(--display);font-size:16px;align-self:flex-start}
 
 /* account */
-.acctb{margin-left:auto;align-self:center;white-space:nowrap;flex:0 0 auto;background:var(--gold);color:var(--hard);border:1px solid var(--hard);font-family:var(--display);font-size:19px;padding:1px 12px}
-.acctb.in{background:transparent;color:var(--pink);border-color:var(--pink)}
-.acctb.err{color:var(--gold);border-color:var(--gold)}
+.hbtns{margin-left:auto;align-self:center;display:flex;gap:6px;flex:0 0 auto}
+.ib{position:relative;width:40px;height:40px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:0}
+.ib.on{color:var(--gold);border-color:var(--gold)}
+.acctb.out{background:var(--gold);color:var(--hard);border-color:var(--hard)}
+.acctb.in{color:var(--pink);border-color:var(--pink)}
+.acctb.in::after{content:"";position:absolute;right:3px;top:3px;width:6px;height:6px;background:var(--pink)}
+.acctb.err::after{background:var(--gold)}
+@media (max-width:420px){.ib{width:34px;height:34px}.top canvas{width:52px;height:52px}}
 .acctcard{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--well);border:1px solid var(--line);padding:10px 12px}
 .acctcard div{min-width:0;flex:1 1 220px}
 .acctcard b{display:block;font-family:var(--display);font-weight:400;font-size:21px;line-height:1.1;overflow-wrap:anywhere}
@@ -186,6 +194,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .lnk{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;align-self:center;padding:2px}
 
 /* touch: no double-tap zoom, no text selection or callouts while tapping fast */
+*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,input *,textarea *{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default}
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 button{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -231,7 +241,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;max-width:70ch;margin
       <h1>High <span>Numbers</span></h1>
       <div class="tagline">Licensed dispensary · est. 4:20</div>
     </div>
-    <button class="acctb" id="acctb" hidden>Sign in</button>
+    <div class="hbtns"><button class="ib" id="sfxb" aria-label="Sound effects"></button><button class="ib" id="musb" aria-label="Music"></button><button class="ib acctb" id="acctb" hidden aria-label="Account"></button></div>
   </header>
 
   <div class="dock" id="dock">
@@ -709,7 +719,8 @@ const POPT={
 const PDEF={body:'masc',skin:'#e0a87e',hair:'short',hairC:'#3a2414',beard:'none',eyes:'sleepy',eyeC:'#2a1714',mouth:'smile',hat:'none',hatC:'#c42a3a',glasses:'none',glassC:'#16100c',shirt:'tee',shirtC:'#3a6ab0',shirt2:'#f1e8db',mouthAcc:'none',neck:'none',ear:'none',bg:'#2b2235'};
 function portrait(Lin){
  const L={...PDEF,...Lin};const N=PN,g=new Array(N*N).fill(null),CX=11.5,fem=L.body==='fem';
- const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(c&&x>=0&&y>=0&&x<N&&y<N)g[y*N+x]=c};
+ let layer='';const hm=new Uint8Array(N*N);
+ const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(c&&x>=0&&y>=0&&x<N&&y<N){g[y*N+x]=c;hm[y*N+x]=layer==='hair'?1:0}};
  const get=(x,y)=>(x<0||y<0||x>=N||y>=N)?null:g[y*N+x];
  const ell=(cx,cy,rx,ry,f,clip)=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(((x+.5-cx)/rx)**2+((y+.5-cy)/ry)**2<=1&&(!clip||clip(x,y)))set(x,y,typeof f==='function'?f(x,y):f)};
  const rect=(x0,y0,x1,y1,f)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,typeof f==='function'?f(x,y):f)};
@@ -729,7 +740,7 @@ function portrait(Lin){
   dreads:()=>{ell(CX,9,7.2,6.5,hairF);for(let x=4;x<=19;x++)for(let y=9;y<=20;y++)if(x<7||x>16)set(x,y,(x%2)?hcD:hc);[4,6,17,19].forEach(x=>set(x,21,L.hatC))},
   bob:()=>{ell(CX,10,7.2,7.4,hairF,(x,y)=>y<=16)},
   bun:()=>{ell(CX,2,3.3,2.1,(x,y)=>x>=13?hcD:hc);rect(9,3,14,3,hcD)}};
- if(back[L.hair])back[L.hair]();
+ layer='hair';if(back[L.hair])back[L.hair]();layer='';
  /* 2. neck and clothes */
  rect(10,16,13,18,(x,y)=>x>=12||y===16?skD:sk);
  for(let y=19;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y))set(x,y,x>=17?ccD:(x<=5&&y>=21?ccL:cc));
@@ -808,7 +819,7 @@ function portrait(Lin){
   afro:()=>{ell(CX,7.6,7.6,6,(x,y)=>((x*7+y*3)%5===0)?hcD:hairF(x,y),(x,y)=>y<=8||(x<6||x>17)&&y<=13)},
   dreads:()=>{top(4.4,8);for(let x=5;x<=18;x+=2)for(let y=8;y<=10;y++)if(x<8||x>15)set(x,y,hc)},
   mullet:()=>{top(4,8);sides(10);rect(7,8,9,8,hairF)}};
- if(F[L.hair])F[L.hair]();
+ layer='hair';if(F[L.hair])F[L.hair]();layer='';
  /* 8. headgear */
  const hC=L.hatC,hD=pShade(hC,-.28),hL=pShade(hC,.25);
  const H={beanie:()=>{ell(CX,8,6.9,5.6,(x,y)=>x>=15?hD:((x%2)?hC:hL),(x,y)=>y<=7);rect(5,8,18,9,(x,y)=>y===9?hD:hC)},
@@ -823,6 +834,8 @@ function portrait(Lin){
   chef:()=>{ell(CX,3.2,7,3.6,(x,y)=>x>=16?'#d8d8e0':'#ffffff');rect(7,4,16,8,(x,y)=>x>=15?'#d8d8e0':'#ffffff');rect(7,8,16,8,'#d8d8e0')},
   crown:()=>{rect(7,5,16,8,(x,y)=>y===8?'#c08a1a':'#f5b942');[7,9,11,12,14,16].forEach((x,k)=>{set(x,4,'#f5b942');if(k%2===0||x===11)set(x,3,'#f5b942')});set(9,6,'#e84a5f');set(12,6,'#5ab4c2');set(14,6,'#3e8a34');set(8,6,'#fff6c8')}};
  if(H[L.hat])H[L.hat]();
+ /* hats squash the hair: nothing of the hair pokes out above the brim */
+ if(['beanie','cap','capback','bucket','bandana','tam','fedora','tophat','chef'].includes(L.hat))for(let y=0;y<=8;y++)for(let x=0;x<N;x++)if(hm[y*N+x])g[y*N+x]=null;
  /* 9. glasses */
  const gc=L.glassC;
  const G2={round:()=>{for(const ox of [0,7]){set(7+ox,10,null);[[8,9],[9,9],[7,10],[10,10],[7,11],[10,11],[8,12],[9,12]].forEach(([x,y])=>set(x+ox,y,gc))}set(11,10,gc);set(12,10,gc)},
@@ -900,6 +913,74 @@ function hold(el,fn){
  el.addEventListener('contextmenu',e=>e.preventDefault());
  el.addEventListener('click',e=>{if(e.detail===0)fn();e.preventDefault()});
 }
+/* ---------- 8-bit sound: effects + an optional laid-back reggae loop ---------- */
+const SFX=(()=>{
+ let ctx=null,master=null,musicBus=null,on=true,music=false,noiseBuf=null;
+ try{on=localStorage.getItem('hn.sfx')!=='0';music=localStorage.getItem('hn.music')==='1'}catch(e){}
+ function ac(){
+  if(!ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;ctx=new C();
+   master=ctx.createGain();master.gain.value=.32;master.connect(ctx.destination);
+   musicBus=ctx.createGain();musicBus.gain.value=.5;musicBus.connect(master);
+   noiseBuf=ctx.createBuffer(1,ctx.sampleRate*.5,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+  if(ctx.state==='suspended')ctx.resume();return ctx}
+ function tone(f,t0,d,o={}){const c=ctx;if(!c)return;const{type='square',vol=.2,slide=0,attack=.004,bus=master}=o;
+  const osc=c.createOscillator(),g=c.createGain();osc.type=type;osc.frequency.setValueAtTime(f,t0);
+  if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(30,f*slide),t0+d);
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+attack);g.gain.exponentialRampToValueAtTime(.0001,t0+d);
+  osc.connect(g);g.connect(bus);osc.start(t0);osc.stop(t0+d+.03)}
+ function noise(t0,d,o={}){const c=ctx;if(!c)return;const{vol=.15,freq=2000,q=1,type='bandpass',bus=master}=o;
+  const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=noiseBuf;f.type=type;f.frequency.value=freq;f.Q.value=q;
+  g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+d);s.connect(f);f.connect(g);g.connect(bus);s.start(t0);s.stop(t0+d+.02)}
+ const play=fn=>{if(!on)return;if(!ac())return;fn(ctx.currentTime+.005)};
+ let lastH=0;
+ const fx={
+  tap:()=>play(t=>tone(740,t,.05,{vol:.08})),
+  harvest:(dept)=>{const n=performance.now();if(n-lastH<90)return;lastH=n;play(t=>{
+   if(dept===0){tone(988,t,.07,{vol:.14});tone(1319,t+.055,.14,{vol:.14})}                       // coin
+   else if(dept===1){tone(196,t,.12,{type:'triangle',vol:.3});tone(392,t+.05,.12,{vol:.1})}        // thud of a pressed slab
+   else if(dept===2){noise(t,.05,{freq:3000,vol:.18});noise(t+.07,.05,{freq:2400,vol:.15});tone(784,t+.1,.1,{vol:.1})} // crunch
+   else{for(let k=0;k<5;k++)tone(260+Math.random()*420,t+k*.045,.05,{type:'sine',vol:.18,slide:1.6})} // bong bubbles
+  })},
+  buy:()=>play(t=>{[523,659,784].forEach((f,k)=>tone(f,t+k*.035,.06,{vol:.1}))}),
+  level:()=>play(t=>{[523,659,784,1047].forEach((f,k)=>tone(f,t+k*.07,.12,{vol:.13}));tone(1047,t+.28,.25,{vol:.1,type:'triangle'})}),
+  hire:()=>play(t=>{[392,523,659].forEach((f,k)=>tone(f,t+k*.09,.1,{vol:.13}));tone(784,t+.27,.3,{vol:.13});tone(392,t+.27,.3,{type:'triangle',vol:.2})}),
+  license:()=>play(t=>{[262,330,392,523,392,523,659].forEach((f,k)=>tone(f,t+k*.08,.12,{vol:.12}));tone(784,t+.56,.5,{vol:.12});tone(196,t+.56,.5,{type:'triangle',vol:.25});noise(t+.56,.4,{freq:7000,vol:.08,type:'highpass'})}),
+  upgrade:()=>play(t=>{tone(300,t,.22,{vol:.12,slide:4});tone(600,t+.12,.2,{vol:.08,slide:2})}),
+  walkin:()=>play(t=>{tone(1175,t,.25,{type:'triangle',vol:.22});tone(932,t+.18,.35,{type:'triangle',vol:.22})}),
+  serve:()=>play(t=>{noise(t,.03,{freq:5000,vol:.2});tone(1568,t+.03,.08,{vol:.12});tone(2093,t+.1,.25,{vol:.12})}),
+  flip:()=>play(t=>tone(420,t,.18,{type:'triangle',vol:.16,slide:2.2})),
+  legit:()=>play(t=>{[784,659,523,392].forEach((f,k)=>tone(f,t+k*.09,.1,{vol:.12}));[523,659,784,1047,1319].forEach((f,k)=>tone(f,t+.45+k*.07,.14,{vol:.12}))}),
+  nope:()=>play(t=>tone(120,t,.09,{vol:.12}))
+ };
+ /* music: one-drop reggae at 74 bpm. Bass on the beat, square-wave skank on 2 and 4, a soft hat on the offbeats */
+ const BPM=74,E=60/BPM/2;let step=0,nextT=0,timer=null;
+ const CH=[[220,262,330],[196,247,294],[175,220,262],[196,247,294]];      // Am  G  F  G
+ const BASS=[[110,0,110,131,165,0,147,131],[98,0,98,123,147,0,131,123],[87,0,87,110,131,0,123,110],[98,0,98,123,147,0,165,147]];
+ function sched(){while(nextT<ctx.currentTime+.12){const bar=Math.floor(step/8)%4,s=step%8,t=nextT;
+   const b=BASS[bar][s];if(b)tone(b,t,E*.9,{type:'triangle',vol:.32,bus:musicBus});
+   if(s===2||s===6)CH[bar].forEach(f=>tone(f*2,t,E*.45,{vol:.045,bus:musicBus}));
+   if(s%2===1)noise(t,.03,{freq:8000,vol:.05,type:'highpass',bus:musicBus});
+   if(s===4)noise(t,.09,{freq:120,vol:.35,type:'lowpass',bus:musicBus});
+   step++;nextT+=E}}
+ function startMusic(){if(!ac()||timer)return;nextT=ctx.currentTime+.05;timer=setInterval(sched,30)}
+ function stopMusic(){clearInterval(timer);timer=null}
+ const api={...fx,
+  get on(){return on},get music(){return music},
+  setOn(v){on=v;try{localStorage.setItem('hn.sfx',v?'1':'0')}catch(e){}if(v)fx.tap()},
+  setMusic(v){music=v;try{localStorage.setItem('hn.music',v?'1':'0')}catch(e){}v?startMusic():stopMusic()},
+  unlock(){if(!ac())return;if(music)startMusic()}};
+ const first=()=>{api.unlock();removeEventListener('pointerdown',first,true)};addEventListener('pointerdown',first,true);
+ document.addEventListener('visibilitychange',()=>{if(!ctx)return;if(document.hidden){ctx.suspend()}else if(on||music)ctx.resume()});
+ return api;
+})();
+function pxIcon(rows){const h=rows.length,w=rows[0].length;let r='';rows.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch==='#')r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02"/>`}));
+ return `<svg viewBox="0 0 ${w} ${h}" width="${w*2}" height="${h*2}" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
+const ICONS={
+ user:pxIcon(['....####....','...######...','...######...','...######...','....####....','............','..########..','.##########.','.##########.','.##########.']),
+ sfxOn:pxIcon(['....#.......','...##...#...','.####..#.#..','#####.#...#.','#####.#...#.','#####.#...#.','.####..#.#..','...##...#...','....#.......']),
+ sfxOff:pxIcon(['....#.......','...##.......','.####.#...#.','#####..#.#..','#####...#...','#####..#.#..','.####.#...#.','...##.......','....#.......']),
+ music:pxIcon(['....#######.','....#######.','....#.....#.','....#.....#.','....#.....#.','.###....###.','####...####.','####...####.','.##.....##..'])
+};
 /* product rows */
 const shelf=$('#shelf');
 const rows=P.map((s,i)=>{
@@ -907,12 +988,12 @@ const rows=P.map((s,i)=>{
  el.innerHTML=`<button class="bud" aria-label="Make a batch of ${s.name}"><canvas class="px" width="32" height="32"></canvas><span class="owned">0</span></button>
  <div class="mid"><div class="nm"><b>${s.name}</b><span class="who"></span></div>
  <div class="bar"><div class="fill"></div><span class="rev"></span></div>
- <div class="meta"><button class="buy"><span class="bl"></span><b class="bc"></b></button><span class="time"></span></div>
- <div class="ms"><span class="mt"></span><span class="track"><i></i></span>${s.src>=0?'<span class="syn"></span>':''}</div></div>`;
+ <div class="meta"><button class="buy"><span class="bl"></span><b class="bc"></b></button></div>
+ <div class="ms"><span class="mt"></span><span class="track"><i></i></span>${s.src>=0?'<span class="syn"></span>':''}<span class="time"></span></div></div>`;
  shelf.append(el);
  const R={el,bud:el.querySelector('.bud'),own:el.querySelector('.owned'),who:el.querySelector('.who'),bar:el.querySelector('.bar'),fill:el.querySelector('.fill'),rev:el.querySelector('.rev'),buy:el.querySelector('.buy'),bl:el.querySelector('.bl'),bc:el.querySelector('.bc'),time:el.querySelector('.time'),mt:el.querySelector('.mt'),mi:el.querySelector('.track i'),syn:el.querySelector('.syn'),lastPop:0};
  R.cv=reg(el.querySelector('canvas'),i);
- hold(R.bud,()=>{if(st.owned[i]&&!st.dealer[i]&&!st.going[i])st.going[i]=true});
+ hold(R.bud,()=>{if(st.owned[i]&&!st.dealer[i]&&!st.going[i]){st.going[i]=true;SFX.tap()}});
  hold(R.buy,()=>buy(i));
  return R;
 });
@@ -931,15 +1012,16 @@ function flipCoin(){
   if(p<1)requestAnimationFrame(step);else{logo.style.transform='';lctx.putImageData(COIN_IMG.leaf,0,0);flipping=false}};
  requestAnimationFrame(step)}
 (function sched(){setTimeout(()=>{if(!document.hidden)flipCoin();sched()},8000+Math.random()*12000)})();
-logo.addEventListener('click',flipCoin);
+logo.addEventListener('click',()=>{if(!flipping)SFX.flip();flipCoin()});
 setTimeout(flipCoin,1200);
 
 
 function buy(i){if(!st.lic[P[i].dept])return;const n=buyN(i),c=costN(i,n);if(n<1||c>st.cash)return;const before=speed(i),mb=menuLevel(P[i].dept).k,first=!st.owned[i];
  st.cash-=c;st.owned[i]+=n;
- if(first)toast(`New on the menu: ${P[i].name}`);
- else if(speed(i)>before)toast(`${P[i].name} runs ${speed(i)/before}× faster`);
- if(menuLevel(P[i].dept).k>mb)toast(`Full Menu! ${DEPTS[P[i].dept].name} profit ×2`);
+ if(first){toast(`New on the menu: ${P[i].name}`);SFX.level()}
+ else if(speed(i)>before){toast(`${P[i].name} runs ${speed(i)/before}× faster`);SFX.level()}
+ else SFX.buy();
+ if(menuLevel(P[i].dept).k>mb){toast(`Full Menu! ${DEPTS[P[i].dept].name} profit ×2`);SFX.license()}
  ui(true)}
 
 /* license card */
@@ -948,7 +1030,7 @@ function renderLicense(){const d=DEPTS[dept];
  const items=DIDX[dept];
  licEl.innerHTML=`<h3>${d.sign} license</h3><p>${d.blurb}</p><div class="row-sprites">${items.map(()=>'<canvas class="px" width="32" height="32"></canvas>').join('')}</div><p class="lreq"></p><button class="buy lbtn"><span>Buy license</span><b>${money(d.license)}</b></button>`;
  licEl.querySelectorAll('canvas').forEach((cv,k)=>{const o=reg(cv,items[k]);o.sil=true;paint(o,0)});
- licEl.querySelector('.lbtn').addEventListener('click',()=>{if(st.cash>=d.license&&st.life>=d.unlock&&!st.lic[dept]){st.cash-=d.license;st.lic[dept]=true;toast(`${d.sign} is open`);buildDealers();buildUpgrades();ui(true)}});
+ licEl.querySelector('.lbtn').addEventListener('click',()=>{if(st.cash>=d.license&&st.life>=d.unlock&&!st.lic[dept]){st.cash-=d.license;st.lic[dept]=true;SFX.license();toast(`${d.sign} is open`);buildDealers();buildUpgrades();ui(true)}});
  licEl._d=dept}
 
 /* dealers */
@@ -961,7 +1043,7 @@ function buildDealers(){dealersEl.innerHTML='';dcards=[];
    el.innerHTML=`<div class="head"><div class="face"><canvas class="px" width="24" height="24"></canvas></div><div><h3>${dd.name}</h3><div class="runs"><canvas class="px" width="32" height="32"></canvas>Runs ${P[i].name}</div></div></div><p>${dd.bio}</p><div class="act"></div>`;
    grid.append(el);drawFace(el.querySelector('.face canvas'),dd.look);const rc=reg(el.querySelector('.runs canvas'),i);
    const btn=document.createElement('button');btn.className='buy';btn.innerHTML=`<span class="hl">Hire</span><b>${money(dd.cost)}</b>`;
-   btn.addEventListener('click',()=>{if(st.cash>=dd.cost&&st.owned[i]&&!st.dealer[i]){st.cash-=dd.cost;st.dealer[i]=true;toast(`${dd.name} is on the clock`);ui(true)}});
+   btn.addEventListener('click',()=>{if(st.cash>=dd.cost&&st.owned[i]&&!st.dealer[i]){st.cash-=dd.cost;st.dealer[i]=true;SFX.hire();toast(`${dd.name} is on the clock`);ui(true)}});
    const badge=document.createElement('span');badge.className='badge';badge.textContent='On the clock';
    el.querySelector('.act').append(btn,badge);dcards.push({i,el,btn,badge,rc,hl:btn.querySelector('.hl')})}
  })}
@@ -976,7 +1058,7 @@ function buildUpgrades(){recalc();upEl.innerHTML='';upRows=[];
   const ic=u.target>=0?'<canvas class="px" width="32" height="32"></canvas>':u.all?DEPTS[u.dept].name.slice(0,5).toUpperCase():'ALL';
   el.innerHTML=`<div class="ic">${ic}</div><div class="tx"><b>${u.name}</b><span>${tname} profit ×3</span></div><button class="buy"><b>${money(u.cost)}</b></button>`;
   upEl.append(el);if(u.target>=0)reg(el.querySelector('canvas'),u.target);
-  const b=el.querySelector('.buy');b.addEventListener('click',()=>{if(st.cash>=u.cost){st.cash-=u.cost;st.up.push(u.id);toast(`${u.name}: ${tname} ×3`);buildUpgrades();ui(true)}});
+  const b=el.querySelector('.buy');b.addEventListener('click',()=>{if(st.cash>=u.cost){st.cash-=u.cost;st.up.push(u.id);SFX.upgrade();toast(`${u.name}: ${tname} ×3`);buildUpgrades();ui(true)}});
   upRows.push({u,b})}
 }
 
@@ -993,13 +1075,24 @@ function walkLook(seed){const r=rng(seed),pick=a=>{const v=a[Math.floor(r()*a.le
  return {body:pick(POPT.body),skin:pick(POPT.skin),hair:pick(POPT.hair),hairC:pick(POPT.hairC.slice(0,9)),beard:r()<.6?'none':pick(POPT.beard),eyes:pick(['sleepy','red','normal','happy','wide']),eyeC:pick(POPT.eyeC),mouth:pick(['smile','grin','laugh','o','smirk']),
   hat:r()<.55?'none':pick(['beanie','cap','capback','bucket','headband','bandana','fedora']),hatC:pick(POPT.colors),glasses:r()<.65?'none':pick(['round','square','shades','aviator','heart']),glassC:pick(POPT.colors),
   shirt:pick(['tee','hoodie','tank','hawaiian','tiedye','jacket','jersey']),shirtC:pick(POPT.colors),shirt2:pick(POPT.colors),mouthAcc:r()<.8?'none':pick(['joint','lollipop','toothpick']),neck:r()<.8?'none':pick(['chain','beads','scarf']),ear:r()<.85?'none':pick(['stud','hoop','headphones'])}}
-wk.addEventListener('click',()=>{const m=serveWalk();if(m)toast(m);ui(true)});
+wk.addEventListener('click',()=>{const m=serveWalk();if(m){toast(m);SFX.serve()}ui(true)});
 
+/* sound toggles */
+const sfxb=$('#sfxb'),musb=$('#musb');
+function sndUI(){sfxb.innerHTML=SFX.on?ICONS.sfxOn:ICONS.sfxOff;sfxb.classList.toggle('on',SFX.on);sfxb.setAttribute('aria-pressed',SFX.on);musb.innerHTML=ICONS.music;musb.classList.toggle('on',SFX.music);musb.setAttribute('aria-pressed',SFX.music)}
+sfxb.addEventListener('click',()=>{SFX.setOn(!SFX.on);sndUI()});musb.addEventListener('click',()=>{SFX.setMusic(!SFX.music);sndUI()});sndUI();
+/* iPhone: stop double-tap zoom, pinch zoom, long-press selection and callouts */
+const editable=t=>{const el=t&&t.nodeType===1?t:t&&t.parentElement;return !!(el&&el.closest&&el.closest('input,textarea'))};
+document.addEventListener('selectstart',e=>{if(!editable(e.target))e.preventDefault()});
+document.addEventListener('contextmenu',e=>{if(!editable(e.target))e.preventDefault()});
+let lastTouchEnd=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTouchEnd<450&&!editable(e.target))e.preventDefault();lastTouchEnd=n},{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+['gesturestart','gesturechange'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
 /* clout */
 let armed=0;
 $('#legit').addEventListener('click',()=>{const g=cloutGain();if(g<1)return;const b=$('#legit');
  if(Date.now()-armed>3000){armed=Date.now();b.classList.add('arm');b.textContent=`Tap again to sell everything for ${g} Clout`;setTimeout(()=>{if(armed&&Date.now()-armed>=3000){b.classList.remove('arm');ui(true)}},3100);return}
- armed=0;b.classList.remove('arm');const keep={clout:st.clout+g,life:st.life,mode:st.mode,resets:st.resets+1,walks:st.walks};st=Object.assign(fresh(),keep);dept=0;rebuild();toast(`You went legit. +${g} Clout`);save()});
+ armed=0;b.classList.remove('arm');const keep={clout:st.clout+g,life:st.life,mode:st.mode,resets:st.resets+1,walks:st.walks};st=Object.assign(fresh(),keep);dept=0;rebuild();toast(`You went legit. +${g} Clout`);SFX.legit();save()});
 let wipeArm=0;
 $('#wipe').addEventListener('click',()=>{const b=$('#wipe');if(Date.now()-wipeArm>3000){wipeArm=Date.now();b.textContent='Tap again to erase everything';setTimeout(()=>b.textContent='Erase save',3000);return}
  st=fresh();dept=0;rebuild();save();b.textContent='Erase save';toast('Save erased');if(AUTH)cloudSync(true)});
@@ -1018,7 +1111,7 @@ function ui(force){
  const bs=st.buffs.filter(b=>b.until>st.clock).map(b=>`${b.label} · ${Math.ceil(b.until-st.clock)}s`).join('|');
  const be=$('#buffs');if(be._t!==bs){be._t=bs;be.innerHTML=bs?bs.split('|').map(x=>`<span class="buff">${x}</span>`).join(''):''}
  // walk-in
- if(st.walk){const e=EVENTS.find(x=>x.id===st.walk.id);wk.hidden=false;if(wkSeed!==st.walk.seed){wkSeed=st.walk.seed;drawFace(wkCv,walkLook(wkSeed));wkT.textContent=e.title;wkS.textContent=e.text}
+ if(st.walk){const e=EVENTS.find(x=>x.id===st.walk.id);wk.hidden=false;if(wkSeed!==st.walk.seed){wkSeed=st.walk.seed;SFX.walkin();drawFace(wkCv,walkLook(wkSeed));wkT.textContent=e.title;wkS.textContent=e.text}
   wkL.style.width=Math.max(0,(st.walk.until-st.clock)/15*100)+'%'}else wk.hidden=true;
  // dept chips
  chips.forEach((c,j)=>{c.b.setAttribute('aria-pressed',j===dept);c.b.classList.toggle('locked',!st.lic[j]);if(c.c.sil!==!st.lic[j]){c.c.sil=!st.lic[j];paint(c.c,animTick)}});
@@ -1049,9 +1142,9 @@ function ui(force){
   R.buy.disabled=c>st.cash;
   const t=cyc(i);setT(R.time,(d||st.going[i])?hms((1-st.prog[i])*t):hms(t));
   const next=MILES.find(m=>m>own);
-  if(next){const prev=[0,...MILES].filter(m=>m<=own).pop();setT(R.mt,`Speed ×2 at ${next}`);R.mi.style.width=((own-prev)/(next-prev)*100)+'%'}
+  if(next){const prev=[0,...MILES].filter(m=>m<=own).pop();setT(R.mt,`×2 speed at ${next}`);R.mi.style.width=((own-prev)/(next-prev)*100)+'%'}
   else{setT(R.mt,'Max speed');R.mi.style.width='100%'}
-  if(R.syn)setT(R.syn,`Made with ${P[p.src].name} · +${fmt(st.owned[p.src]*.5).replace(/\.00$/,'')}%`);
+  if(R.syn)setT(R.syn,`${P[p.src].name} +${fmt(st.owned[p.src]*.5).replace(/\.00$/,'')}%`);
  }
  for(const c of dcards){const i=c.i,own=st.owned[i],d=st.dealer[i];c.el.classList.toggle('hired',d);c.btn.hidden=d;c.badge.hidden=!d;c.btn.disabled=d||!own||st.cash<P[i].d.cost;
   setT(c.hl,own?'Hire':`Stock ${P[i].name} first ·`);if(c.rc.sil!==!own){c.rc.sil=!own;paint(c.rc,animTick)}}
@@ -1086,7 +1179,7 @@ let AUTH=(()=>{try{return JSON.parse(localStorage.getItem(AKEY))||null}catch(e){
 const SYNC={state:'idle',at:0,dirty:false,busy:false,again:false};
 let AUTH_NOTE='',AUTH_RECOVERY=false;
 function authSave(a){AUTH=a;try{a?localStorage.setItem(AKEY,JSON.stringify(a)):localStorage.removeItem(AKEY)}catch(e){}}
-const userOf=u=>u?{id:u.id,email:u.email||(u.user_metadata&&u.user_metadata.email)||''}:null;
+const userOf=u=>u?{id:u.id,email:u.email||(u.user_metadata&&u.user_metadata.email)||'',username:(u.user_metadata&&u.user_metadata.username)||''}:null;
 function sessionFrom(j,user){return {access_token:j.access_token,refresh_token:j.refresh_token,expires_at:+j.expires_at||Math.floor(Date.now()/1000)+(+j.expires_in||3600),user:userOf(j.user)||user||null}}
 async function authFresh(){
  if(!AUTH||AUTH.expires_at-60>Date.now()/1000)return;
@@ -1124,12 +1217,12 @@ async function mountGoogle(){
  const raw=b64url(crypto.getRandomValues(new Uint8Array(24)));
  const hashed=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw)))].map(x=>x.toString(16).padStart(2,'0')).join('');
  google.accounts.id.initialize({client_id:CLOUD.google,nonce:hashed,ux_mode:'popup',auto_select:false,itp_support:true,callback:res=>googleCredential(res.credential,raw)});
- el.innerHTML='';google.accounts.id.renderButton(el,{type:'standard',theme:'filled_black',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'center',width:Math.round(Math.max(200,Math.min(400,el.clientWidth||300)))});
+ el.innerHTML='';google.accounts.id.renderButton(el,{type:'standard',theme:'outline',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'center',width:Math.round(Math.max(200,Math.min(400,el.clientWidth||300)))});
 }
 async function googleCredential(token,raw){
  try{amsg('One moment…');
   const j=await sb('/auth/v1/token?grant_type=id_token',{method:'POST',body:JSON.stringify({provider:'google',id_token:token,nonce:raw})},false);
-  authSave(sessionFrom(j));closeSheet();toast("You're signed in");await cloudSync();acctUI();
+  authSave(sessionFrom(j));closeSheet();toast("You're signed in");await cloudSync();acctUI();ensureUsername();
  }catch(e){amsg(authError(e),'err')}
 }
 function authGoogle(){location.href=CLOUD.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(SITE)}
@@ -1192,7 +1285,7 @@ async function cloudStart(){
  addEventListener('online',()=>cloudSync());
  setInterval(()=>{if(SYNC.dirty)cloudSync()},60000);
  if(AUTH_RECOVERY)newPasswordSheet();else if(AUTH_NOTE)toast(AUTH_NOTE);
- if(AUTH)await cloudSync();
+ if(AUTH){await cloudSync();ensureUsername()}
  acctUI();
 }
 
@@ -1212,8 +1305,11 @@ function signInSheet(mode){const up=mode==='up';
  ${up?'<button class="lnk" data-act="signin">I already have an account</button>':'<button class="lnk" data-act="signup">New here? Create an account</button><button class="lnk" data-act="aforgot">Forgot password?</button>'}</div>
  <button class="ghost" data-act="close">Close</button>`);
  mountGoogle()}
-function acctSheet(){showSheet(`<h2>Orchid-42 account</h2><p class="sp" style="overflow-wrap:anywhere;color:var(--gold)">${esc(AUTH?.user?.email||'')}</p><p class="sp">${syncText()}</p><p class="sp">Signing out keeps your progress on this device. Sign in again any time to sync.</p>
- <button class="legit" data-act="syncnow">Sync now</button><button class="ghost" data-act="asignout">Sign out</button><button class="ghost" data-act="close">Close</button>`)}
+let NEED_USER=false;
+async function ensureUsername(){if(!AUTH)return;if(!AUTH.user||!AUTH.user.username){try{const u=await sb('/auth/v1/user');AUTH.user=userOf(u);authSave(AUTH);acctUI()}catch(e){return}}if(!AUTH.user.username)usernameSheet(true)}
+function usernameSheet(first){NEED_USER=first;showSheet(`<h2>${first?'Pick a username':'Change username'}</h2><p class="sp">This is the name people see in Orchid-42 games. 3 to 16 letters, numbers or _.</p><div class="authf"><input id="auser" maxlength="16" autocomplete="nickname" autocapitalize="none" spellcheck="false" placeholder="Username" value="${esc(AUTH?.user?.username||'')}"><p class="amsg" id="amsg"></p><button class="legit" data-act="asetuser">Save username</button></div>${first?'':'<button class="ghost" data-act="close">Close</button>'}`);setTimeout(()=>document.getElementById('auser')?.focus(),50)}
+function acctSheet(){showSheet(`<h2>${esc(AUTH?.user?.username||'Orchid-42 account')}</h2><p class="sp" style="overflow-wrap:anywhere">${esc(AUTH?.user?.email||'')}</p><p class="sp">${syncText()}</p><p class="sp">Signing out keeps your progress on this device. Sign in again any time to sync.</p>
+ <button class="legit" data-act="syncnow">Sync now</button><button class="ghost" data-act="chuser">Change username</button><button class="ghost" data-act="asignout">Sign out</button><button class="ghost" data-act="close">Close</button>`)}
 function newPasswordSheet(){showSheet(`<h2>Choose a new password</h2><div class="authf"><input id="apw" type="password" autocomplete="new-password" placeholder="New password (at least 6 characters)"><p class="amsg" id="amsg"></p><button class="legit" data-act="asetpw">Save password</button></div>`)}
 async function authAct(act,btn){
  const email=(document.getElementById('aemail')?.value||'').trim(),pw=document.getElementById('apw')?.value||'';
@@ -1229,21 +1325,23 @@ async function authAct(act,btn){
    busy(true);amsg('One moment…');
    if(act==='alogin')await authSignIn(email,pw);
    else if(await authSignUp(email,pw)==='confirm'){amsg('Almost there: we sent you an email. Tap the link in it to finish.','ok');busy(false);return}
-   closeSheet();toast("You're signed in");await cloudSync();acctUI();return}
+   closeSheet();toast("You're signed in");await cloudSync();acctUI();ensureUsername();return}
   if(act==='aforgot'){if(!email){amsg('Type your email above, then tap Forgot password again.','err');return}busy(true);await authForgot(email);amsg('Check your email for a link to reset your password.','ok');busy(false);return}
-  if(act==='asetpw'){if(pw.length<6){amsg('Use a password with at least 6 characters.','err');return}busy(true);await authSetPassword(pw);closeSheet();toast("Password saved. You're signed in");await cloudSync();acctUI();return}
+  if(act==='asetpw'){if(pw.length<6){amsg('Use a password with at least 6 characters.','err');return}busy(true);await authSetPassword(pw);closeSheet();toast("Password saved. You're signed in");await cloudSync();acctUI();ensureUsername();return}
+  if(act==='chuser'){usernameSheet(false);return}
+  if(act==='asetuser'){const u=(document.getElementById('auser')?.value||'').trim();if(!/^[A-Za-z0-9_]{3,16}$/.test(u)){amsg('Use 3 to 16 letters, numbers or _.','err');return}busy(true);amsg('One moment…');const j=await sb('/auth/v1/user',{method:'PUT',body:JSON.stringify({data:{username:u}})});AUTH.user={...(userOf(j)||AUTH.user),username:u};authSave(AUTH);NEED_USER=false;closeSheet();acctUI();toast(`You're ${u} now`);return}
   if(act==='asignout'){await authSignOut();closeSheet();acctUI();toast('Signed out. Your progress stays on this device');return}
  }catch(e){busy(false);amsg(authError(e),'err')}
 }
-sheetEl.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b){authAct(b.dataset.act,b);return}if(e.target===sheetEl&&!AUTH_RECOVERY)closeSheet()});
+sheetEl.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b){authAct(b.dataset.act,b);return}if(e.target===sheetEl&&!AUTH_RECOVERY&&!NEED_USER)closeSheet()});
 sheetEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.authf input')){e.preventDefault();const b=sheetEl.querySelector('.authf .legit');if(b)b.click()}});
 function acctUI(){
  const on=cloudOn();
  const hb=document.getElementById('acctb'),card=document.getElementById('acctcard');
  hb.hidden=!on;card.hidden=!on;if(!on)return;
- hb.textContent=AUTH?(SYNC.state==='error'?'Sync error':'Signed in'):'Sign in';
- hb.classList.toggle('in',!!AUTH);hb.classList.toggle('err',SYNC.state==='error');
- card.innerHTML=AUTH?`<div><b>${esc(AUTH.user?.email||'Orchid-42 account')}</b><span>${syncText()}</span></div><button class="ghost" data-a="acct">Account</button>`
+ hb.innerHTML=ICONS.user;hb.setAttribute('aria-label',AUTH?(AUTH.user?.username||'Account'):'Sign in');hb.title=hb.getAttribute('aria-label');
+ hb.classList.toggle('in',!!AUTH);hb.classList.toggle('out',!AUTH);hb.classList.toggle('err',SYNC.state==='error');
+ card.innerHTML=AUTH?`<div><b>${esc(AUTH.user?.username||'Pick a username')}</b><span>${syncText()}</span></div><button class="ghost" data-a="acct">Account</button>`
   :`<div><b>Play on all your devices</b><span>Sign in with your Orchid-42 account to keep your dispensary online and pick it up on your phone or computer.</span></div><button class="legit" data-a="signin">Sign in</button>`;
 }
 document.getElementById('acctb').addEventListener('click',()=>AUTH?acctSheet():signInSheet('in'));
@@ -1253,7 +1351,7 @@ function markDirty(){if(AUTH)SYNC.dirty=true}
 /* ---------- loop ---------- */
 let last=performance.now(),acc=0,saveAcc=0;
 function frame(now){let dt=(now-last)/1000;last=now;
- if(dt>2)away(dt);else tick(dt,pop);
+ if(dt>2)away(dt);else tick(dt,(i,g)=>{if(!st.dealer[i])SFX.harvest(P[i].dept);pop(i,g)});
  bars();acc+=dt;saveAcc+=dt;if(acc>.1){acc=0;ui()}if(saveAcc>5){saveAcc=0;save()}
  requestAnimationFrame(frame)}
 function load(){try{let raw=localStorage.getItem(SAVE);if(raw)return pad(JSON.parse(raw));raw=localStorage.getItem(SAVE1);if(raw)return pad(JSON.parse(raw))}catch(e){}return null}
