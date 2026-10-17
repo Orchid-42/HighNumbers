@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="High Numbers: an idle dispensary tycoon by Orchid-42.">
+<meta name="theme-color" content="#16111b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="High Numbers">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>High Numbers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: one column shop counter. Docked register + menu, department chips, then a shelf of product rows like jars behind glass. */
+:root{
+  --bg:#16111b; --panel:#211a28; --panel2:#2b2235; --well:#110c15; --line:#3d3049;
+  --fg:#f1e8db; --muted:#a093ad; --gold:#f5b942; --gold-dk:#8a5a12;
+  --violet:#b896ff; --violet-dk:#4a3078; --pink:#f7bcd9; --smoke:#cfc3dc; --hard:#09060c;
+  --display:"VT323",ui-monospace,Menlo,monospace;
+  --body:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg)}
+body{color:var(--fg);font-family:var(--body);font-size:13px;line-height:1.5;
+  background:
+    radial-gradient(1200px 500px at 15% -10%, rgba(184,150,255,.10), transparent 60%),
+    radial-gradient(900px 600px at 110% 10%, rgba(245,185,66,.07), transparent 60%),
+    var(--bg);min-height:100%}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+canvas.px{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+.disp{font-family:var(--display);font-weight:400;letter-spacing:.02em}
+
+.wrap{max-width:800px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:14px}
+
+.top{display:flex;align-items:center;gap:12px}
+.top canvas{width:64px;height:64px;cursor:pointer;will-change:transform}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(46px,10vw,66px);line-height:.78;margin:0;letter-spacing:.01em;text-shadow:2px 2px 0 var(--violet-dk);text-wrap:balance}
+h1 span{color:var(--gold);text-shadow:2px 2px 0 var(--gold-dk)}
+.tagline{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+
+/* dock */
+.dock{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--bg);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:16;background:var(--bg)}
+.dock-in{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.register{background:var(--well);border:1px solid var(--line);padding:4px 12px;display:flex;flex-direction:column;min-width:0;flex:0 1 auto}
+.register .lbl{font-family:var(--display);font-size:15px;color:var(--muted);line-height:1}
+.register .amt{font-family:var(--display);font-size:clamp(26px,5vw,34px);color:var(--gold);font-variant-numeric:tabular-nums;line-height:1;word-break:break-word}
+.register .sub{font-size:11px;color:var(--pink);font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{position:relative;background:var(--panel);border:1px solid var(--line);padding:3px 12px;font-family:var(--display);font-size:20px;line-height:1.2}
+.tab[aria-selected="true"]{background:var(--fg);color:var(--hard);border-color:var(--fg)}
+.tab .dot{position:absolute;top:-4px;right:-4px;width:8px;height:8px;background:var(--gold);border:1px solid var(--hard)}
+.dock .toolbar{order:5;width:100%}
+.buffs{display:flex;gap:6px;flex-wrap:wrap;width:100%}
+.buffs:empty{display:none}
+.buff{font-family:var(--display);font-size:16px;line-height:1.2;padding:1px 8px;border:1px solid var(--violet);color:var(--violet);font-variant-numeric:tabular-nums}
+.walkin{width:100%;display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--pink);padding:6px 10px;text-align:left;position:relative;overflow:hidden}
+.walkin canvas{width:40px;height:40px;flex:0 0 auto}
+.walkin .wt{flex:1;min-width:0}
+.walkin .wt b{display:block;font-family:var(--display);font-size:19px;font-weight:400;color:var(--pink);line-height:1.1}
+.walkin .wt span{font-size:11px;color:var(--smoke)}
+.walkin .go{font-family:var(--display);font-size:18px;background:var(--pink);color:var(--hard);padding:2px 10px;flex:0 0 auto}
+.walkin .tl{position:absolute;left:0;bottom:0;height:2px;background:var(--pink)}
+
+/* shop */
+.depts{display:flex;gap:6px;flex-wrap:wrap}
+.dchip{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--line);padding:2px 10px 2px 4px;font-family:var(--display);font-size:19px;color:var(--muted)}
+.dchip canvas{width:24px;height:24px}
+.dchip[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.dchip.locked{opacity:.55}
+.dhead{display:flex;align-items:flex-end;justify-content:space-between;gap:6px 16px;flex-wrap:wrap;border-bottom:1px dashed var(--line);padding-bottom:8px}
+.dhead h2{font-family:var(--display);font-weight:400;font-size:30px;line-height:1;margin:0}
+.dhead .menu{font-size:11px;color:var(--muted)}
+.dhead .menu b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--violet)}
+.toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--display);font-size:17px;color:var(--muted)}
+.toolbar button{background:transparent;border:1px solid var(--line);padding:0 8px;font-family:var(--display);font-size:17px;color:var(--muted)}
+.toolbar button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+
+.license{background:var(--panel);border:1px dashed var(--gold);padding:16px;display:flex;flex-direction:column;gap:10px}
+.license h3{font-family:var(--display);font-weight:400;font-size:24px;margin:0;line-height:1}
+.license p{margin:0;font-size:12px;color:var(--smoke);max-width:62ch}
+.license .row-sprites{display:flex;gap:6px;flex-wrap:wrap}
+.license .row-sprites canvas{width:40px;height:40px;background:var(--well);border:1px solid var(--line)}
+
+.shelf{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:12px;align-items:stretch;background:var(--panel);border:1px solid var(--line);padding:9px}
+.row.locked{background:color-mix(in srgb,var(--panel) 60%,var(--bg))}
+.bud{position:relative;flex:0 0 auto;width:84px;height:84px;padding:0;border:1px solid var(--line);background:
+  repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 4px,transparent 4px 8px),var(--well);display:grid;place-items:center}
+.bud canvas{width:72px;height:72px}
+.bud.ready{border-color:var(--pink);animation:pulse 1.1s steps(2) infinite}
+.bud:disabled{cursor:default}
+.bud .owned{position:absolute;right:-1px;bottom:-1px;background:var(--gold);color:var(--hard);font-family:var(--display);font-size:17px;line-height:1.1;padding:0 5px;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+@keyframes pulse{50%{border-color:var(--gold)}}
+.mid{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:5px}
+.nm{display:flex;align-items:baseline;justify-content:space-between;gap:2px 8px;flex-wrap:wrap}
+.nm b{font-family:var(--display);font-weight:400;font-size:23px;line-height:1}
+.nm .who{font-size:11px;color:var(--muted)}
+.nm .who.on{color:var(--pink)}
+.bar{position:relative;height:24px;background:var(--well);border:1px solid var(--line);overflow:hidden}
+.bar .fill{position:absolute;inset:0 auto 0 0;width:0;background:repeating-linear-gradient(90deg,var(--violet) 0 6px,color-mix(in srgb,var(--violet) 80%,#fff) 6px 8px)}
+.bar.blur .fill{width:100%!important;animation:slide .4s linear infinite;background:repeating-linear-gradient(90deg,var(--violet) 0 10px,color-mix(in srgb,var(--violet) 70%,#fff) 10px 20px);background-size:20px 100%}
+@keyframes slide{to{background-position:20px 0}}
+.bar .rev{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:20px;color:var(--fg);text-shadow:0 1px 2px var(--hard),0 0 2px var(--hard);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;padding:0 6px}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.buy{background:var(--gold);color:var(--hard);border:1px solid var(--hard);padding:1px 10px;font-family:var(--display);font-size:18px;line-height:1.2;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;text-align:left}
+.buy b{font-weight:400;font-variant-numeric:tabular-nums}
+.buy:disabled{background:var(--panel2);color:var(--muted);border-color:var(--line);cursor:not-allowed}
+.time{font-family:var(--display);font-size:19px;color:var(--smoke);font-variant-numeric:tabular-nums;margin-left:auto}
+.ms{display:flex;align-items:center;gap:4px 10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.ms .track{flex:1 1 60px;height:3px;background:var(--well);max-width:120px;min-width:40px}
+.ms .track i{display:block;height:100%;background:var(--gold);width:0}
+.ms .syn{color:var(--violet)}
+.pop{position:absolute;left:2px;top:4px;font-family:var(--display);font-size:19px;color:var(--gold);text-shadow:1px 1px 0 var(--hard);pointer-events:none;white-space:nowrap;animation:rise .9s ease-out forwards;z-index:2}
+@keyframes rise{to{transform:translateY(-34px);opacity:0}}
+
+/* dealers */
+.group{display:flex;flex-direction:column;gap:8px}
+.group + .group{margin-top:10px}
+.group h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;line-height:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px}
+.card .head{display:flex;gap:10px;align-items:center}
+.card .face{width:62px;height:62px;flex:0 0 auto;background:var(--well);border:1px solid var(--line);display:grid;place-items:center}
+.card .face canvas{width:56px;height:56px}
+.card h3{font-family:var(--display);font-weight:400;font-size:22px;margin:0;line-height:1}
+.card .runs{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted);margin-top:4px}
+.card .runs canvas{width:24px;height:24px}
+.card p{margin:0;font-size:12px;color:var(--smoke);flex:1}
+.card.hired{border-color:var(--violet-dk)}
+.card .buy,.license .buy{align-self:flex-start}
+.badge{font-family:var(--display);font-size:17px;color:var(--pink);border:1px solid var(--pink);padding:0 8px;align-self:flex-start}
+.note{color:var(--muted);font-size:12px;padding:10px 12px;border:1px dashed var(--line)}
+
+/* upgrades */
+.ulist{display:flex;flex-direction:column;gap:6px}
+.urow{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);padding:7px 10px}
+.urow .ic{width:40px;height:40px;flex:0 0 auto;background:var(--well);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-size:15px;color:var(--gold);text-align:center;line-height:.9}
+.urow .ic canvas{width:32px;height:32px}
+.urow .tx{flex:1;min-width:0}
+.urow .tx b{font-family:var(--display);font-weight:400;font-size:20px;display:block;line-height:1.05}
+.urow .tx span{font-size:11px;color:var(--muted)}
+
+/* clout */
+.clout{background:var(--panel);border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.stat{background:var(--well);border:1px solid var(--line);padding:6px 10px}
+.stat .k{font-family:var(--display);font-size:16px;color:var(--muted);line-height:1.1}
+.stat .v{font-family:var(--display);font-size:24px;color:var(--gold);font-variant-numeric:tabular-nums;word-break:break-word;line-height:1.1}
+.clout p{margin:0;font-size:12px;color:var(--smoke);max-width:62ch}
+.legit{background:var(--violet);color:var(--hard);border:1px solid var(--hard);padding:4px 14px;font-family:var(--display);font-size:21px;align-self:flex-start}
+.legit.arm{background:var(--gold)}
+.legit:disabled{background:var(--panel2);color:var(--muted);border-color:var(--line);cursor:not-allowed}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);padding:1px 10px;font-family:var(--display);font-size:16px;align-self:flex-start}
+
+/* account */
+.acctb{margin-left:auto;align-self:center;white-space:nowrap;flex:0 0 auto;background:var(--gold);color:var(--hard);border:1px solid var(--hard);font-family:var(--display);font-size:19px;padding:1px 12px}
+.acctb.in{background:transparent;color:var(--pink);border-color:var(--pink)}
+.acctb.err{color:var(--gold);border-color:var(--gold)}
+.acctcard{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--well);border:1px solid var(--line);padding:10px 12px}
+.acctcard div{min-width:0;flex:1 1 220px}
+.acctcard b{display:block;font-family:var(--display);font-weight:400;font-size:21px;line-height:1.1;overflow-wrap:anywhere}
+.acctcard span{font-size:12px;color:var(--smoke)}
+.acctcard .legit,.acctcard .ghost{align-self:center}
+.sheet{text-align:left!important;max-height:calc(100dvh - 32px);overflow-y:auto}
+.sheet .sp{margin:0;font-size:12px;color:var(--smoke)}
+.sheet .legit,.sheet .ghost{align-self:stretch;text-align:center}
+.authf{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.authf input{width:100%;font:inherit;font-size:16px;color:var(--fg);background:var(--well);border:1px solid var(--line);padding:10px 12px;outline:none;border-radius:0}
+.authf input:focus{border-color:var(--gold)}
+.gbox{min-height:44px;display:flex;justify-content:center;align-items:center;color-scheme:light;overflow:hidden}
+.gbox>.gbtn{flex:1}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#1f1f1f;border:0;padding:10px;font-family:var(--body);font-size:14px}
+.gbtn i{font-style:normal;font-weight:700}
+.aor{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.aor::before,.aor::after{content:"";flex:1;height:1px;background:var(--line)}
+.amsg{min-height:1.2em;margin:0;font-size:12px;color:var(--smoke)}.amsg.err{color:#ff9a8a}.amsg.ok{color:var(--pink)}
+.lnk{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;align-self:center;padding:2px}
+
+footer{font-size:11px;color:var(--muted);text-align:center;max-width:70ch;margin:0 auto}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--pink);color:var(--hard);font-family:var(--display);font-size:20px;padding:3px 14px;border:1px solid var(--hard);z-index:20;max-width:calc(100% - 32px);text-align:center}
+.modal{position:fixed;inset:0;background:rgba(9,6,12,.72);display:grid;place-items:center;z-index:30;padding:16px}
+.modal .box{background:var(--panel);border:1px solid var(--gold);padding:20px;max-width:360px;width:100%;display:flex;flex-direction:column;gap:8px;text-align:center}
+.modal h2{font-family:var(--display);font-weight:400;font-size:28px;margin:0;line-height:1}
+.modal .big{font-family:var(--display);font-size:36px;color:var(--gold);word-break:break-word;line-height:1}
+.modal button{align-self:center}
+
+@media (max-width:640px){
+  .wrap{padding-bottom:calc(var(--dockH,150px) + 20px)}
+  .dock{position:fixed;top:auto;left:0;right:0;bottom:0;margin:0;border-bottom:0;border-top:1px solid var(--line);padding-block:8px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-in{flex-direction:column;align-items:stretch;gap:6px}
+  .walkin{order:-2}.buffs{order:-1}
+  .dock .toolbar{order:0;justify-content:space-between}
+  .dock .toolbar button{flex:1;padding:0 4px}
+  .register{flex-direction:row;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:0 10px}
+  .register .lbl{display:none}
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .tab{padding:3px 2px;text-align:center}
+  .toast{bottom:calc(var(--dockH,150px) + 12px)}
+}
+@media (max-width:460px){
+  .bud{width:68px;height:68px}.bud canvas{width:58px;height:58px}
+  .row{gap:10px;padding:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  .pop,.bud.ready,.bar.blur .fill{animation:none}
+  .pop{display:none}
+}
+</style>
+
+</head><body>
+<div class="wrap">
+  <header class="top">
+    <canvas id="logo" class="px" width="32" height="32" aria-hidden="true"></canvas>
+    <div>
+      <h1>High <span>Numbers</span></h1>
+      <div class="tagline">Licensed dispensary · est. 4:20</div>
+    </div>
+    <button class="acctb" id="acctb" hidden>Sign in</button>
+  </header>
+
+  <div class="dock" id="dock">
+    <div class="dock-in">
+      <button class="walkin" id="walkin" hidden><canvas class="px" width="16" height="16"></canvas><div class="wt"><b></b><span></span></div><span class="go">Serve</span><i class="tl"></i></button>
+      <div class="buffs" id="buffs"></div>
+      <div class="register">
+        <div class="lbl">Register</div>
+        <div class="amt" id="cash">$0.00</div>
+        <div class="sub" id="rate">$0 / sec from dealers</div>
+      </div>
+      <div class="toolbar" id="buybar">
+        <span>Buy</span>
+        <button data-m="1" aria-pressed="true">×1</button>
+        <button data-m="10" aria-pressed="false">×10</button>
+        <button data-m="100" aria-pressed="false">×100</button>
+        <button data-m="next" aria-pressed="false">Next</button>
+        <button data-m="max" aria-pressed="false">Max</button>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="shop" aria-selected="true">Shop</button>
+        <button class="tab" role="tab" data-tab="dealers" aria-selected="false">Dealers<i class="dot" hidden></i></button>
+        <button class="tab" role="tab" data-tab="upgrades" aria-selected="false">Upgrades<i class="dot" hidden></i></button>
+        <button class="tab" role="tab" data-tab="clout" aria-selected="false">Clout<i class="dot" hidden></i></button>
+      </nav>
+    </div>
+  </div>
+
+  <section id="tab-shop" style="display:flex;flex-direction:column;gap:12px">
+    <div class="depts" id="depts"></div>
+    <div class="dhead"><h2 id="dname">Flower Room</h2><div class="menu" id="dmenu"></div></div>
+    <div id="license" class="license" hidden></div>
+    <div class="shelf" id="shelf"></div>
+  </section>
+  <section id="tab-dealers" hidden><div id="dealers"></div></section>
+  <section id="tab-upgrades" hidden><div class="ulist" id="upgrades"></div></section>
+  <section id="tab-clout" hidden>
+    <div class="clout">
+      <div class="acctcard" id="acctcard" hidden></div>
+      <div class="stats">
+        <div class="stat"><div class="k">Clout</div><div class="v" id="cl-have">0</div></div>
+        <div class="stat"><div class="k">Profit bonus</div><div class="v" id="cl-bonus">+0%</div></div>
+        <div class="stat"><div class="k">Clout if you go legit</div><div class="v" id="cl-gain">0</div></div>
+        <div class="stat"><div class="k">Lifetime sales</div><div class="v" id="cl-life">$0</div></div>
+        <div class="stat"><div class="k">Walk-ins served</div><div class="v" id="cl-walk">0</div></div>
+        <div class="stat"><div class="k">Times gone legit</div><div class="v" id="cl-resets">0</div></div>
+      </div>
+      <p>Going legit sells the business and starts you over with one jar of Schwag. Licenses, dealers and upgrades reset. You keep your Clout, and every point adds 2% to all profits forever. Clout comes from lifetime sales, so the bigger you get, the more a fresh start pays.</p>
+      <button class="legit" id="legit">Go legit</button>
+      <button class="ghost" id="wipe">Erase save</button>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<div class="modal" id="sheet" hidden><div class="box sheet"></div></div>
+<div class="modal" id="modal" hidden><div class="box"><h2>While you were out</h2><div id="m-p" style="font-size:12px;color:var(--smoke)"></div><div class="big" id="m-big"></div><button class="legit" id="m-ok">Nice</button></div></div>
+
+<script>
+(()=>{
+/*CORE*/
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const SHAPES={
+ flat:r=>{const a=[];for(let x=6;x<=18.5;x+=2.5)a.push({x:x+r()*.8,y:13.5+(r()-.5)*2.2,r:2.8+r()*1.3});return a},
+ nug:r=>{const a=[{x:12,y:12.5,r:5.6}];for(let k=0;k<5;k++){const t=k/5*6.28+r();a.push({x:12+Math.cos(t)*4.2,y:12.5+Math.sin(t)*4,r:3+r()*1.1})}return a},
+ nug2:r=>{const a=[{x:12,y:12.3,r:6.3}];for(let k=0;k<7;k++){const t=k/7*6.28+r()*.5;a.push({x:12+Math.cos(t)*5,y:12.3+Math.sin(t)*5,r:2.7+r()*.8})}return a},
+ spear:r=>{const a=[];for(let k=0;k<6;k++){a.push({x:12+(r()-.5)*1.4,y:16.6-k*2.4,r:4.8-k*.5});if(k<4)a.push({x:12+(k%2?3.4:-3.4),y:16.2-k*2.4,r:2.2})}return a},
+ dense:r=>{const a=[{x:12,y:12,r:6.3}];for(let k=0;k<8;k++){const t=k/8*6.28+r()*.3;a.push({x:12+Math.cos(t)*6,y:12+Math.sin(t)*6,r:1.9+r()*.8})}return a},
+ fox:r=>{const a=[];for(let k=0;k<7;k++){a.push({x:12+(k%2?1.8:-1.8)+(r()-.5)*.6,y:18.4-k*2.15,r:3.5-k*.22});if(k%2===0&&k<6)a.push({x:12+(k%4?-3.2:3.2),y:18-k*2.15,r:2.2})}return a},
+ berry:r=>{const a=[];for(let k=0;k<6;k++){const rr=5.4-k*.74,y=7.6+k*2.4;a.push({x:12-rr*.5,y,r:rr*.75},{x:12+rr*.5,y,r:rr*.75},{x:12,y:y+.4,r:rr*.8})}return a},
+ crown:r=>{const a=[];for(let k=0;k<7;k++){a.push({x:12+(r()-.5),y:17.2-k*2.15,r:5-k*.52});if(k<5)a.push({x:12+(k%2?3.6:-3.6),y:17-k*2.2,r:2.3-k*.15})}return a},
+};
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=f<0?0:255,p=Math.abs(f);r=Math.round((t-r)*p+r);g=Math.round((t-g)*p+g);b=Math.round((t-b)*p+b);return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1)}
+const G=32;
+const BAYER=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+function makeBud(L){
+ for(let K=G/24;K>.8;K-=.04){const b=budAt(L,K);let x0=G,x1=0,y0=G,y1=0;
+  b.px.forEach((c,i)=>{if(!c)return;const x=i%G,y=(i/G)|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)});
+  if(x0>=1&&y0>=1&&x1<=G-2&&y1<=G-1)return b}
+ return budAt(L,.8)}
+function budAt(L,K){
+ const r=rng(L.seed),CX=16,CY=15.5,SC=K/(G/24);
+ const circ=SHAPES[L.shape](r).map(c=>({x:(c.x-12)*K+CX,y:(c.y-12)*K+CY,r:c.r*K}));
+ const H=new Float32Array(G*G);
+ for(let y=0;y<G;y++)for(let x=0;x<G;x++){const px=x+.5,py=y+.5;let h=0;
+  for(const c of circ){const d2=(px-c.x)**2+(py-c.y)**2;if(d2<c.r*c.r){const v=Math.sqrt(c.r*c.r-d2);if(v>h)h=v}}
+  H[y*G+x]=h}
+ const body=i=>H[i]>0;
+ const bodyIdx=[];for(let i=0;i<G*G;i++)if(body(i))bodyIdx.push(i);
+ // calyx bumps
+ const nb=Math.round(bodyIdx.length/11);
+ for(let b=0;b<nb;b++){const ci=bodyIdx[Math.floor(r()*bodyIdx.length)],bx=ci%G+.5,by=((ci/G)|0)+.5,rb=1.3+r()*1.3;
+  for(let y=Math.floor(by-rb);y<=by+rb;y++)for(let x=Math.floor(bx-rb);x<=bx+rb;x++){if(x<0||y<0||x>=G||y>=G)continue;const i=y*G+x;if(!body(i))continue;
+   const d2=(x+.5-bx)**2+(y+.5-by)**2;if(d2<rb*rb)H[i]+=Math.sqrt(rb*rb-d2)*.85}}
+ let hmax=0;for(const i of bodyIdx)hmax=Math.max(hmax,H[i]);
+ const hAt=(x,y)=>(x<0||y<0||x>=G||y>=G)?0:H[y*G+x];
+ const LX=-.5,LY=-.62,LZ=.6,LN=Math.hypot(LX,LY,LZ);
+ const deep=shade(L.c[0],-.38),hi=shade(L.c[2],.38);
+ const pal=[deep,L.c[0],L.c[1],L.c[2],hi];
+ const px=new Array(G*G).fill(null),lvl=new Int8Array(G*G).fill(-1);
+ // leaves (behind the bud)
+ const angs=L.leaves==='crown'?[-130,-90,-50,-160,-20]:({1:[25],2:[155,25],3:[160,22,-40],4:[165,15,130,50]})[L.leaves]||[];
+ const lf=L.leaf,lfDk=shade(lf,-.4),lfLt=shade(lf,.22),lfFrost=L.frost>.3;
+ const leafSet=new Uint8Array(G*G);
+ for(const a of angs){
+  const dx=Math.cos(a*Math.PI/180),dy=Math.sin(a*Math.PI/180),qx=-dy,qy=dx;
+  let sx=CX,sy=L.leaves==='crown'?8.5:CY;
+  for(let s=0;s<20;s++){const ix=Math.round(sx+dx*s),iy=Math.round(sy+dy*s);if(ix<0||iy<0||ix>=G||iy>=G||!body(iy*G+ix)){sx+=dx*(s-2.5);sy+=dy*(s-2.5);break}}
+  const Ln=(L.leaves==='crown'?6.5:8.5+r()*1.5)*SC,W=(L.leaves==='crown'?1.7:2.3)*Math.max(.85,SC);
+  const lightSide=(qx*LX+qy*LY)>0?1:-1;
+  for(let y=0;y<G;y++)for(let x=0;x<G;x++){const i=y*G+x;if(body(i))continue;
+   const ox=x+.5-sx,oy=y+.5-sy,t=(ox*dx+oy*dy)/Ln,s=ox*qx+oy*qy;if(t<0||t>1)continue;
+   let w=W*Math.pow(Math.sin(Math.PI*Math.min(1,t*1.08)),.75);
+   if(Math.floor(t*Ln*1.4)%2)w*=.72;
+   if(Math.abs(s)>w)continue;
+   leafSet[i]=1;
+   let c=Math.abs(s)<.55?lfDk:(Math.sign(s)===lightSide?lfLt:lf);
+   if(t>.85)c=lf;
+   if(lfFrost&&r()<.3)c=L.frostC;
+   px[i]=c}
+ }
+ // stem
+ let bottom=0;for(let y=0;y<G;y++)if(body(y*G+16)||body(y*G+15))bottom=y;
+ for(let y=bottom+1;y<=Math.min(bottom+3,G-1);y++){px[y*G+15]=lfDk;px[y*G+16]=y===bottom+3?lfDk:lf}
+ // body lighting
+ for(const i of bodyIdx){const x=i%G,y=(i/G)|0;
+  const gx=(hAt(x+1,y)-hAt(x-1,y))/2,gy=(hAt(x,y+1)-hAt(x,y-1))/2;
+  const nx=-gx,ny=-gy,nz=1,nn=Math.hypot(nx,ny,nz);
+  let lum=Math.max(0,(nx*LX+ny*LY+nz*LZ)/(nn*LN));
+  lum=lum*.78+(H[i]/hmax)*.32;
+  const d=(BAYER[y%4][x%4]/16-.5)*.36;
+  let l=Math.round(lum*4.2-.9+d);l=Math.max(0,Math.min(4,l));
+  if(l===4&&lum<.95)l=3;
+  lvl[i]=l;px[i]=pal[l]}
+ // outline (selective: bud vs leaf)
+ const out=px.slice();
+ for(let y=0;y<G;y++)for(let x=0;x<G;x++){const i=y*G+x;if(px[i])continue;
+  const nbr=[x>0?i-1:-1,x<G-1?i+1:-1,y>0?i-G:-1,y<G-1?i+G:-1].filter(j=>j>=0&&px[j]);
+  if(!nbr.length)continue;
+  out[i]=nbr.some(j=>body(j))?L.out:shade(lf,-.62)}
+ // frost
+ if(L.frost)for(const i of bodyIdx){const p=L.frost*.75*(lvl[i]>=3?1.8:lvl[i]===2?.9:.25);if(r()<p)out[i]=lvl[i]<=1?shade(L.frostC,-.35):L.frostC}
+ if(L.stars){const sc=['#ffffff','#ff9ee8','#9ee8ff','#fff09e'];for(const i of bodyIdx)if(r()<.07)out[i]=sc[Math.floor(r()*4)]}
+ for(let s=0;s<(L.seeds||0);s++){const i=bodyIdx[Math.floor(r()*bodyIdx.length)];out[i]=L.seedC;if(i-G>=0&&body(i-G)&&L.seedC!=='#2e2010')out[i-G]=shade(L.seedC,.4)}
+ // pistils: curl outward from the bud center
+ const hairDk=shade(L.hair,-.28);
+ for(let h=0;h<L.hairs;h++){
+  let i=bodyIdx[Math.floor(r()*bodyIdx.length)];let x=i%G,y=(i/G)|0;
+  let ax=x-CX,ay=y-CY,an=Math.hypot(ax,ay)||1;ax/=an;ay/=an;
+  const len=3+Math.floor(r()*2),curl=(r()<.5?-1:1)*.9;let fx=x,fy=y;
+  for(let k=0;k<len;k++){const xi=Math.round(fx),yi=Math.round(fy);if(xi<0||yi<0||xi>=G||yi>=G)break;
+   const j=yi*G+xi;if(!body(j)&&out[j]!==L.out)break;
+   out[j]=k>=len-2?hairDk:L.hair;
+   const nx2=ax+(-ay)*curl*k*.4,ny2=ay+ax*curl*k*.4-.35;const m=Math.hypot(nx2,ny2)||1;fx+=nx2/m;fy+=ny2/m}}
+ return {px:out,bodyIdx};
+}
+function toImage(px,G,sil){const id=new ImageData(G,G);for(let i=0;i<G*G;i++){let c=px[i];if(!c)continue;if(sil)c=c===sil.o?sil.o:sil.b;const n=parseInt(c.slice(1),16);id.data.set([n>>16,n>>8&255,n&255,255],i*4)}return id}
+
+/* ---- pixel toolkit for non-flower products ---- */
+const L3=(()=>{const v=[-.5,-.62,.6],n=Math.hypot(...v);return v.map(x=>x/n)})();
+function lv(lum,x,y,dz=.36){let l=Math.round(lum*4.2-.9+(BAYER[y&3][x&3]/16-.5)*dz);return l<0?0:l>4?4:l}
+function P5(b){return [shade(b,-.55),shade(b,-.28),b,shade(b,.25),shade(b,.55)]}
+function Spr(){
+ const S={g:new Array(G*G).fill(null)};
+ S.set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(c&&x>=0&&y>=0&&x<G&&y<G)S.g[y*G+x]=c};
+ S.setRaw=(x,y,c)=>{if(c&&x>=0&&y>=0&&x<G&&y<G)S.g[y*G+x]=c};
+ S.get=(x,y)=>(x<0||y<0||x>=G||y>=G)?null:S.g[y*G+x];
+ S.del=(x,y)=>{if(x>=0&&y>=0&&x<G&&y<G)S.g[y*G+x]=null};
+ S.ell=(cx,cy,rx,ry,pal,f)=>{for(let y=0;y<G;y++)for(let x=0;x<G;x++){const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry,d=nx*nx+ny*ny;if(d>1)continue;
+  const nz=Math.sqrt(1-d),lum=Math.max(0,nx*L3[0]+ny*L3[1]+nz*L3[2]),l=lv(lum,x,y);S.setRaw(x,y,f?f(x,y,l,nx,ny):pal[l])}};
+ S.cap=(x0,y0,x1,y1,r0,r1,pal,f)=>{const dx=x1-x0,dy=y1-y0,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len,qx=-uy,qy=ux,ql=qx*L3[0]+qy*L3[1];
+  for(let y=0;y<G;y++)for(let x=0;x<G;x++){const px=x+.5-x0,py=y+.5-y0,t=(px*ux+py*uy)/len,tc=Math.max(0,Math.min(1,t)),r=r0+(r1-r0)*tc;
+   const ex=x+.5-(x0+dx*tc),ey=y+.5-(y0+dy*tc);if(Math.hypot(ex,ey)>r)continue;
+   const s=(ex*qx+ey*qy)/r,a=(t<0||t>1)?(ex*ux+ey*uy)/r:0,nz=Math.sqrt(Math.max(0,1-s*s-a*a));
+   const lum=Math.max(0,s*ql+a*(ux*L3[0]+uy*L3[1])+nz*L3[2]),l=lv(lum,x,y);S.setRaw(x,y,f?f(t,s,l,x,y):pal[l])}};
+ S.poly=(pts,c)=>{for(let y=0;y<G;y++)for(let x=0;x<G;x++){const X=x+.5,Y=y+.5;let ins=false;
+  for(let i=0,j=pts.length-1;i<pts.length;j=i++){const[xi,yi]=pts[i],[xj,yj]=pts[j];if((yi>Y)!==(yj>Y)&&X<(xj-xi)*(Y-yi)/(yj-yi)+xi)ins=!ins}
+  if(ins)S.setRaw(x,y,typeof c==='function'?c(x,y):c)}};
+ S.rect=(x0,y0,x1,y1,c)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)S.setRaw(x,y,typeof c==='function'?c(x,y):c)};
+ S.line=(x0,y0,x1,y1,c)=>{const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0))||1;for(let k=0;k<=n;k++)S.set(x0+(x1-x0)*k/n,y0+(y1-y0)*k/n,c)};
+ S.done=(oc)=>{const g=S.g,o=g.slice();for(let y=0;y<G;y++)for(let x=0;x<G;x++){const i=y*G+x;if(g[i])continue;
+   if((x>0&&g[i-1])||(x<G-1&&g[i+1])||(y>0&&g[i-G])||(y<G-1&&g[i+G]))o[i]=oc}
+  const bodyIdx=[];g.forEach((c,i)=>{if(c)bodyIdx.push(i)});return {px:o,bodyIdx}};
+ return S;
+}
+const ART={
+ kief(r){const S=Spr(),p=P5('#c08f3c');
+  S.ell(16,25,12.5,11,p,(x,y,l)=>y>25?null:(r()<.18?p[Math.max(0,l-1)]:r()<.1?p[Math.min(4,l+1)]:p[l]));
+  S.rect(4,26,28,27,(x)=>x<8?p[0]:p[1]);
+  for(let k=0;k<14;k++){const x=6+r()*20,y=17+r()*8;if(S.get(Math.round(x),Math.round(y)))S.set(x,y,'#fff3c4')}
+  // scraper card
+  S.poly([[17,13],[28,9],[29,12],[18,16]],(x,y)=>y<12?'#f3e9ff':'#c9b8e8');
+  return S.done('#2e1a06')},
+ bubble(r){const S=Spr(),p=P5('#a8773a');
+  [[11,20,6],[20,21,6.4],[15.5,13,5.6],[23,13,4],[8,13,3.4],[15,25,4]].forEach(([x,y,rr])=>S.ell(x,y,rr,rr*.92,p,(X,Y,l)=>r()<.16?p[Math.max(0,l-1)]:p[l]));
+  for(let k=0;k<40;k++){const i=Math.floor(r()*G*G);const x=i%G,y=(i/G)|0;if(S.get(x,y)&&(!S.get(x+1,y)||!S.get(x,y-1)||!S.get(x-1,y)))S.del(x,y)}
+  for(let k=0;k<10;k++){const x=4+r()*24,y=26+r()*4;S.set(x,y,p[2])}
+  return S.done('#2a1708')},
+ charas(r){const S=Spr(),p=P5('#4a2c18');
+  S.cap(7,25,24,8,4,3.4,p,(t,s,l)=>(Math.floor(t*14+s*2)%3===0&&l>1)?p[l-1]:p[l]);
+  S.cap(19,26,27,18,2.6,2.2,p);
+  for(let k=0;k<6;k++){const x=8+r()*16,y=9+r()*16;if(S.get(Math.round(x),Math.round(y))===p[3])S.set(x,y,'#d9a86a')}
+  return S.done('#0d0603')},
+ shatter(r){const S=Spr();
+  S.poly([[3,9],[26,4],[29,22],[7,28]],(x,y)=>((x+y)%9===0)?'#d9cfb4':'#ece4cc');
+  const am=['#8a4206','#c26a10','#e89a24','#ffc65a','#fff1bf'];
+  S.poly([[7,12],[17,7],[25,10],[24,19],[15,25],[8,21]],(x,y)=>{const v=(x*.6-y*.8+20)/24;let l=Math.round(v*3.6+(BAYER[y&3][x&3]/16-.5)*.5);return am[Math.max(0,Math.min(3,l))]});
+  S.line(10,15,18,10,am[4]);S.line(11,17,14,15,am[4]);
+  S.line(15,25,17,15,am[0]);S.line(17,15,24,13,am[0]);S.line(17,15,12,12,am[1]);
+  S.set(21,12,'#ffffff');S.set(12,13,'#ffffff');
+  return S.done('#3a2a12')},
+ rosin(r){const S=Spr(),p=['#9a6620','#c8923e','#e6b964','#f7da95','#fff8de'];
+  S.poly([[4,8],[28,6],[29,27],[3,28]],(x,y)=>(x===16||y===17)?'#d6ccb0':'#ebe3cc');
+  S.ell(16,18,10,7,p);S.ell(11,14,4,3,p);S.ell(21,22,4.5,3,p);
+  S.set(11,14,'#ffffff');S.set(12,14,'#ffffff');S.set(13,15,'#ffffff');S.set(18,16,'#ffffff');
+  return S.done('#3a2a10')},
+ moonrock(r){return makeBud({seed:131,shape:'nug2',c:['#24361c','#3c5a2a','#5f8240'],out:'#0c1408',hair:'#e0b050',hairs:3,frost:.9,frostC:'#e3bd62',leaf:'#3c5a2a',leaves:0})},
+ brownie(r){const S=Spr();const top=['#5e341a','#7b4826','#98603a','#b57c52'];
+  S.poly([[4,13],[17,7],[29,13],[16,19]],(x,y)=>{const n=BAYER[y&3][x&3]/16;return top[Math.min(3,Math.floor(((x-y*.4)+10)/9+n*.8))%4]});
+  S.poly([[4,13],[16,19],[16,28],[4,22]],(x,y)=>(y-(x-4)*.5)%4<1?'#3e200e':'#4a2814');
+  S.poly([[16,19],[29,13],[29,22],[16,28]],(x,y)=>(y+(x-16)*.5)%4<1?'#2a1508':'#331a0a');
+  [[9,12,13,11],[12,14,17,13],[18,10,21,12],[20,14,24,13],[14,9,16,10]].forEach(([a,b,c,d])=>S.line(a,b,c,d,'#3a1e0c'));
+  S.line(4,13,16,19,'#c08a5e');S.line(16,19,29,13,'#a8744a');
+  S.set(16,12,'#6fcf5a');S.set(15,11,'#6fcf5a');S.set(17,11,'#6fcf5a');S.set(16,11,'#9be884');S.set(16,13,'#3e8a34');
+  return S.done('#1a0c04')},
+ gummy(r){const S=Spr();
+  const bear=(x,y,b)=>{const p=P5(b);S.ell(x,y+4,4.6,5.4,p);S.ell(x,y-3.4,3.6,3.2,p);S.ell(x-2.8,y-6,1.5,1.5,p);S.ell(x+2.8,y-6,1.5,1.5,p);
+   S.ell(x-4.5,y+1.5,1.6,2.2,p);S.ell(x+4.5,y+1.5,1.6,2.2,p);S.ell(x-2.6,y+9,2,1.6,p);S.ell(x+2.6,y+9,2,1.6,p);S.set(x-1.6,y-3.8,shade(b,-.6));S.set(x+1.4,y-3.8,shade(b,-.6));S.set(x-2,y+2,'#ffffff')};
+  bear(9,15,'#f2c230');bear(23,14,'#e84a5f');bear(16,19,'#b46cf0');
+  return S.done('#1e0c22')},
+ cookie(r){const S=Spr(),p=P5('#c8893e');
+  S.ell(15,17,13,12,p,(x,y,l)=>r()<.12?p[Math.max(1,l-1)]:p[Math.max(1,l)]);
+  S.ell(26,7,5.5,5.5,['#000','#000','#000','#000','#000']);for(let i=0;i<G*G;i++)if(S.g[i]==='#000')S.g[i]=null;
+  for(let k=0;k<9;k++){const x=6+r()*18,y=8+r()*17;if(S.get(Math.round(x),Math.round(y))){S.set(x,y,'#3a1c0c');S.set(x+1,y,'#2a1208');S.set(x,y+1,'#2a1208');S.set(x,y-1,'#5a301a')}}
+  S.set(20,10,'#7ccb5e');S.set(21,10,'#7ccb5e');
+  return S.done('#2e1606')},
+ choc(r){const S=Spr();
+  S.poly([[5,4],[27,4],[27,15],[5,15]],(x,y)=>{const cx=(x-5)%7,cy=(y-4)%6;return cx===0||cy===0?'#2e170a':cx===1||cy===1?'#7a4626':'#55301a'});
+  S.rect(4,15,28,17,(x)=>x%3?'#e8ecf4':'#b8c0d0');
+  S.rect(4,18,28,28,(x,y)=>(y===18||y===28)?'#4a2a74':'#6a3aa8');
+  S.rect(10,20,22,26,'#f5b942');S.rect(11,21,21,25,'#ffd772');
+  [[16,22],[15,23],[17,23],[16,23],[16,24]].forEach(([x,y])=>S.set(x,y,'#3e8a34'));
+  return S.done('#140a1e')},
+ soda(r){const S=Spr(),red=['#5e1018','#8e1b28','#c42a3a','#e8505e','#ff9aa4'],sil=['#5a5e6a','#868b98','#b0b5c2','#d6dae4','#f4f6fa'];
+  for(let y=6;y<=27;y++)for(let x=9;x<=22;x++){const s=(x+.5-15.5)/7,nz=Math.sqrt(Math.max(0,1-s*s)),lum=Math.max(0,s*L3[0]+nz*L3[2]+.08);const l=lv(lum,x,y);
+   S.setRaw(x,y,(y<9||y>24)?sil[l]:(y>=13&&y<=19?'#f4efe6':red[l]))}
+  S.ell(15.5,6,6.6,1.8,sil);S.rect(14,5,17,5,'#4a4e5a');
+  for(let x=9;x<=22;x++){S.set(x,12,'#7a1420');S.set(x,20,'#7a1420')}
+  [[15,15],[14,16],[16,16],[15,16],[13,17],[17,17],[15,17],[15,18]].forEach(([x,y])=>S.set(x,y,'#3e8a34'));
+  S.set(11,10,'#ffffff');S.set(11,22,'#ffffff');S.set(11,23,'#ffd0d4');
+  return S.done('#1e0408')},
+ cake(r){const S=Spr();
+  S.poly([[4,15],[26,10],[29,14],[7,19]],'#fff0f6');
+  const layers=['#e8b06a','#fff0f6','#9a4fd0','#e8b06a','#fff0f6','#e8b06a'];
+  S.poly([[7,19],[29,14],[29,26],[7,29]],(x,y)=>{const yy=y-(14+(29-x)*5/22);return layers[Math.max(0,Math.min(5,Math.floor((yy+1)/2.2)))]});
+  S.poly([[4,15],[7,19],[7,29],[4,25]],(x,y)=>'#c88c4a');
+  [[9,19,3],[14,18,2],[19,17,4],[24,16,2],[27,15,3]].forEach(([x,y,h])=>{for(let k=0;k<h;k++)S.set(x,y+k,'#ffe2ef')});
+  // star
+  [[17,6],[16,7],[17,7],[18,7],[15,8],[16,8],[17,8],[18,8],[19,8],[16,9],[17,9],[18,9],[16,10],[18,10]].forEach(([x,y])=>S.set(x,y,'#ffd651'));S.set(17,8,'#fff6c8');
+  S.line(12,11,13,13,'#ff7ad9');S.line(22,9,22,12,'#7ad9ff');
+  return S.done('#2a0e1e')},
+ preroll(r){const S=Spr(),p=P5('#e8e2d6');
+  S.cap(6,26,24,8,1.8,3.6,p,(t,s,l)=>t<.18?['#5a3a1e','#7a5230','#9a6e44','#b88c5e','#d6ac80'][l]:(Math.floor(t*12)%4===0&&l>1?p[l-1]:p[l]));
+  S.set(25,6,'#e8e2d6');S.set(26,5,'#d6d0c2');S.set(26,6,'#bdb6a6');
+  for(let k=0;k<5;k++)S.set(20+r()*4,9+r()*4,'#6fae4a');
+  return S.done('#241c12')},
+ blunt(r){const S=Spr(),p=P5('#6a4224');
+  S.cap(5,25,24,8,3.4,3.4,p,(t,s,l)=>t>.93?['#8a8a8a','#a8a8a8','#c8c8c8','#e0e0e0','#f4f4f4'][l]:((Math.floor(t*16+s*1.6)%3===0)&&l>0?p[l-1]:p[l]));
+  S.set(26,6,'#ff7a2a');S.set(25,7,'#ffb04a');S.set(27,6,'#e8401a');
+  [[28,3],[27,2],[29,1]].forEach(([x,y])=>S.set(x,y,'#9a90a8'));
+  return S.done('#1a0e04')},
+ vape(r){const S=Spr(),dk=['#141218','#22202a','#34303e','#4a4658','#6a6680'];
+  S.cap(8,27,19,13,2.6,2.6,dk);
+  S.cap(19,13,23,7,2.8,2.8,['#6a3a06','#a85e10','#e89a24','#ffcc66','#fff2cc'],(t,s,l)=>l>=3?['#cfe6ee','#e2f2f8','#f4fbff'][l-3]:['#8a4c08','#c87414','#e89a24'][l]);
+  S.cap(23,7,25,4,1.6,1.2,dk);
+  S.set(11,23,'#f7bcd9');S.set(12,22,'#ffe0ef');
+  return S.done('#0a080e')},
+ twax(r){const S=Spr(),p=P5('#e8e2d6');
+  S.cap(6,26,24,8,1.8,3.6,p,(t,s,l)=>t<.18?['#5a3a1e','#7a5230','#9a6e44','#b88c5e','#d6ac80'][l]:(t>.4&&t<.7?(r()<.55?['#8a5a14','#c08f3c','#e3bd62','#f5d68c','#fff0c0'][l]:['#a87414','#c8902a','#d8a63a','#e6bc5a','#f0d08a'][l]):p[l]));
+  S.set(25,6,'#e8e2d6');S.set(26,5,'#d6d0c2');
+  return S.done('#241c12')},
+ bong(r){const S=Spr(),gl=['#5a7a8e','#7aa0b4','#a6c8d8','#d2e8f2','#ffffff'];
+  S.ell(14,23,8,6,gl,(x,y,l)=>y>21?['#2c6a8a','#3a86aa','#58a8c8','#8ccae0','#d0f0ff'][l]:(l>=3?gl[l]:null));
+  for(let y=4;y<=19;y++){S.set(12,y,gl[2]);S.set(16,y,gl[1]);for(let x=13;x<=15;x++)if(y<6||x===13&&y%5===0)S.set(x,y,gl[3])}
+  S.rect(11,3,17,4,gl[3]);
+  S.line(18,17,24,13,'#8aa8b8');S.line(18,18,24,14,'#5a7a8e');
+  S.ell(25,12,2.6,1.8,['#2a1608','#4a2c18','#6a4228','#8a5a36','#aa7a4e']);S.set(25,11,'#6fae4a');S.set(24,11,'#4f8a34');
+  for(let x=7;x<=21;x++)if(!S.get(x,22))S.set(x,22,'#8ccae0');
+  S.set(13,20,'#ffffff');S.set(9,24,'#ffffff');
+  return S.done('#16242c')},
+ cigar(r){const S=Spr(),p=['#7a4a08','#b87a14','#e8b030','#ffd651','#fff6c8'];
+  S.cap(4,24,25,9,3.8,3.8,p,(t,s,l)=>t>.94?['#8a8a8a','#a8a8a8','#c8c8c8','#e0e0e0','#f4f4f4'][l]:(t>.22&&t<.32?['#3a1a5a','#5a2e86','#7a48b0','#a06ad8','#c89af0'][l]:(r()<.08?'#fff6c8':p[l])));
+  S.set(27,7,'#ff7a2a');S.set(26,8,'#ffb04a');[[28,4],[29,3],[28,2]].forEach(([x,y])=>S.set(x,y,'#b8aec4'));
+  return S.done('#2a1802')},
+};
+
+/* ---- the High Numbers coin: leaf on the front, 420 on the back ---- */
+const COIN_C={rim:'#ffdc4a',rimDk:'#f0a81e',face:'#ffc72c',shine:'#ffe680',edgeDk:'#e89a14',mark:'#e3870c',markDk:'#a85e06'};
+const COIN_LEAF=['........#........','.......###.......','.......###.......','..#....###....#..','..##...###...##..','...##..###..##...','...###.###.###...','....###.#.###....','#....##.#.##....#','.##...##.##...##.','..####.###.####..','....#########....','......#####......','........#........','........#........','........#........'];
+const COIN_DIG={'4':['11011','11011','11011','11111','11111','00011','00011','00011','00011'],'2':['01110','11111','10011','00011','00110','01100','11000','11111','11111'],'0':['01110','11111','11011','11011','11011','11011','11011','11111','01110']};
+function coinPx(side){
+ const S=Spr(),C=COIN_C,cx=16,cy=16;
+ for(let y=0;y<G;y++)for(let x=0;x<G;x++){const dx=x+.5-cx,dy=y+.5-cy,d=Math.hypot(dx,dy);if(d>13.2)continue;
+  const lr=(dx+dy)>4;let c;
+  if(d>11)c=lr?C.rimDk:C.rim;else if(d>10)c=lr?C.rim:C.edgeDk;
+  else{const b=dx+dy;c=(b>-4&&b<1)||(b>3&&b<5)?C.shine:C.face}
+  S.setRaw(x,y,c)}
+ const cells=new Set();
+ if(side==='leaf')COIN_LEAF.forEach((row,r)=>[...row].forEach((ch,k)=>{if(ch==='#')cells.add((7+k)+','+(8+r))}));
+ else '420'.split('').forEach((ch,n)=>{const g=COIN_DIG[ch];for(let r=0;r<9;r++)for(let k=0;k<5;k++)if(g[r][k]==='1')cells.add((7+n*6+k)+','+(11+r))});
+ for(const k of cells){const [x,y]=k.split(',').map(Number);if(!cells.has((x+1)+','+(y+1)))S.setRaw(x+1,y+1,C.markDk)}
+ for(const k of cells){const [x,y]=k.split(',').map(Number);S.setRaw(x,y,C.mark)}
+ return S.done('#0b0610').px;
+}
+/* ---------- data ---------- */
+const DEPTS=[
+ {id:'flower',name:'Flower',sign:'Flower Room',unlock:0,license:0,upB:1e5,icon:2,blurb:''},
+ {id:'hash',name:'Hash',sign:'Hash Bar',unlock:5e14,license:1e15,upB:1e17,icon:14,blurb:'Press, sift and rub your flower into hash. Each hash earns more for every jar of the strain it is made from.'},
+ {id:'edibles',name:'Edibles',sign:'Bakery',unlock:5e21,license:1e22,upB:1e24,icon:16,blurb:'Bake hash into treats. Each edible earns more for every unit of the hash it is made with.'},
+ {id:'smoke',name:'Smokables',sign:'Smoke Lounge',unlock:5e28,license:1e29,upB:1e31,icon:27,blurb:'Roll, wrap and load everything you grow. Each smokable earns more for every unit of its main ingredient.'},
+];
+const P=[
+ {dept:0,name:'Schwag',cost:4,coef:1.07,time:.6,rev:1,look:{seed:11,shape:'flat',c:['#4f3f22','#76643a','#9c8b55'],out:'#1e160b',hair:'#a3743d',hairs:2,frost:0,seeds:5,seedC:'#2e2010',leaf:'#6b6b2e',leaves:4},
+  d:{name:'Couch Kevin',cost:1e3,bio:"Hasn't left the sofa since 2019. Sells by yelling out the window.",look:{skin:'#e8b892',hair:'messy',hc:'#5a3a22',beard:'stubble',shirt:'#8b8b8b',joint:1}}},
+ {dept:0,name:'Mids',cost:60,coef:1.15,time:3,rev:60,look:{seed:23,shape:'nug',c:['#355f24','#548a36','#7db552'],out:'#13240d',hair:'#c9783a',hairs:4,frost:.03,frostC:'#e6f2d6',leaf:'#3f6f28',leaves:2},
+  d:{name:'Dale from the Van',cost:15e3,bio:"Delivers from a '78 camper with a wizard mural on the side.",look:{skin:'#d9a37c',hair:'long',hc:'#c9a050',band:'#e05a3a',beard:'stache',shirt:'#4a7ab0'}}},
+ {dept:0,name:'Lemon Haze',cost:720,coef:1.14,time:6,rev:540,look:{seed:37,shape:'spear',c:['#6f8e1c','#a3c22f','#dcef6d'],out:'#26330a',hair:'#ff8a2a',hairs:8,frost:.07,frostC:'#fffbe0',leaf:'#4f7a20',leaves:2},
+  d:{name:'Sunny Marisol',cost:1e5,bio:'Yoga teacher by day. Free affirmation with every eighth.',look:{skin:'#b47a52',hair:'afro',hc:'#2a1a14',band:'#ffd24a',shirt:'#e86a8a'}}},
+ {dept:0,name:'Purple Kush',cost:8640,coef:1.13,time:12,rev:4320,look:{seed:41,shape:'dense',c:['#331a52','#5a3284','#8c5cc4'],out:'#140924',hair:'#f0913a',hairs:7,frost:.09,frostC:'#f0e2ff',leaf:'#3b2a5c',leaves:3},
+  d:{name:'Professor Puff',cost:5e5,bio:'Tenured, tweed, deeply unbothered. Grades customers on vibes.',look:{skin:'#f0c8a8',hair:'bald',hc:'#b8b0a8',glasses:'round',gc:'#c9a040',beard:'full',shirt:'#7a5a3a'}}},
+ {dept:0,name:'Blue Dream',cost:103680,coef:1.12,time:24,rev:51840,look:{seed:53,shape:'fox',c:['#1c4654','#2c7586','#5ab4c2'],out:'#0a1d24',hair:'#f2c674',hairs:6,frost:.14,frostC:'#e4f8ff',leaf:'#2a5a52',leaves:2},
+  d:{name:'Big Toke Tony',cost:12e5,bio:'Fluent in seven languages, all of them slang.',look:{skin:'#8a5a3a',hat:'cap',hatC:'#d04040',glasses:'shades',shirt:'#2a2a2a',joint:1}}},
+ {dept:0,name:'OG Kush',cost:1244160,coef:1.11,time:96,rev:622080,look:{seed:67,shape:'nug2',c:['#1d4521','#2e6a33','#4f9d50'],out:'#0a1a0b',hair:'#d9813f',hairs:9,frost:.2,frostC:'#f2fff0',leaf:'#24502a',leaves:3},
+  d:{name:'Abuela Rosa',cost:1e7,bio:'Keeps the tightest ledger in town. Pays bonuses in tamales.',look:{skin:'#c48a62',hair:'bun',hc:'#d4d0cc',glasses:'round',gc:'#7a4a8a',shirt:'#3a7a5a'}}},
+ {dept:0,name:'Strawberry Cough',cost:14929920,coef:1.10,time:384,rev:7464960,look:{seed:71,shape:'berry',c:['#64192b','#a32f47','#e65b6c'],out:'#24060d',hair:'#fff0a0',hairs:2,frost:.04,frostC:'#ffe6ea',seeds:10,seedC:'#ffd24a',leaf:'#3e8a34',leaves:'crown'},
+  d:{name:'Captain Cottonmouth',cost:111e6,bio:'Ex-surfer, current philosopher, permanently thirsty.',look:{skin:'#e0a070',hair:'long',hc:'#e8cf7a',hat:'bucket',hatC:'#e86a3a',shirt:'#3ab0c0'}}},
+ {dept:0,name:'White Widow',cost:179159040,coef:1.09,time:1536,rev:89579520,look:{seed:83,shape:'spear',c:['#6f8f80','#a9c6b6','#e6f3ec'],out:'#1f2c26',hair:'#e9b48a',hairs:4,frost:.45,frostC:'#ffffff',leaf:'#4f7262',leaves:2},anim:'frost',
+  d:{name:'Snackmaster Sid',cost:555e6,bio:'Spends 40% of profits on gas-station snacks. Still beats quota.',look:{skin:'#f2c4a0',hat:'beanie',hatC:'#6a3a9a',beard:'stubble',shirt:'#e08a2a'}}},
+ {dept:0,name:'Cosmic Cookies',cost:2149908480,coef:1.08,time:6144,rev:1074954240,look:{seed:97,shape:'dense',c:['#171238','#2a2168','#4d3eae'],out:'#07051a',hair:'#ff7ad9',hairs:5,frost:0,stars:true,leaf:'#1f2a5c',leaves:3},anim:'cosmic',
+  d:{name:'Old Man Nebula',cost:1e10,bio:"Says he's been to space twice. Nobody asks how.",look:{skin:'#e6c0a0',hair:'long',hc:'#e8e8f0',beard:'full',glasses:'round',gc:'#5ab4c2',shirt:'#2a2a6a'}}},
+ {dept:0,name:'Golden Godbud',cost:25798901760,coef:1.07,time:36864,rev:29668737024,look:{seed:101,shape:'crown',c:['#8a5410','#d4921c','#ffd651'],out:'#2e1a02',hair:'#fff6c8',hairs:5,frost:.12,frostC:'#fffbe8',leaf:'#7a6a1c',leaves:2},anim:'gold',
+  d:{name:'The Chairman',cost:1e11,bio:'Owns a yacht, two mansions and zero shoes.',look:{skin:'#6a4228',hair:'short',hc:'#1a1210',glasses:'shades',gc:'#d4a020',beard:'stache',shirt:'#d4a020',joint:1}}},
+];
+function addDept(dept,B,items){items.forEach((it,k)=>{const cost=B*Math.pow(14,k),time=4*Math.pow(2.4,k),ratio=5e-5*Math.pow(.5,k);
+ P.push({...it,dept,cost,coef:[1.09,1.11,1.12,1.12,1.13,1.13][k],time,rev:cost*ratio*time,d:{...it.d,cost:cost*200}})})}
+addDept(1,1e15,[
+ {name:'Kief',art:'kief',src:'Mids',d:{name:'Grinder Gus',bio:'Has saved every grain of kief since 2003. Knows them by name.',look:{skin:'#d8a882',hair:'short',hc:'#3a2a1a',beard:'full',shirt:'#8a6a3a'}}},
+ {name:'Bubble Hash',art:'bubble',src:'Lemon Haze',d:{name:'Ice Bath Ingrid',bio:'Washes hash in ice water. Swims in it on weekends.',look:{skin:'#f4d2bc',hair:'long',hc:'#f0e0b0',hat:'beanie',hatC:'#5ab4c2',shirt:'#e8ecf4'}}},
+ {name:'Moon Rock',art:'moonrock',src:'OG Kush',d:{name:'Astro Nomi',bio:"Calls every customer 'cadet'. Wears the helmet indoors.",look:{skin:'#c08a62',hair:'afro',hc:'#1a1210',glasses:'shades',gc:'#b896ff',shirt:'#e8e8f0'}}},
+ {name:'Charas',art:'charas',src:'Purple Kush',d:{name:'Himalaya Hank',bio:'Hand-rubbed a mountain of charas. Has the palms to prove it.',look:{skin:'#a8724c',hair:'long',hc:'#3a2a20',beard:'full',band:'#e86a3a',shirt:'#c8504a'}}},
+ {name:'Shatter',art:'shatter',src:'Blue Dream',anim:'frost',d:{name:'Shard Sharon',bio:'Breaks things for a living. Only on purpose.',look:{skin:'#e8b892',hair:'short',hc:'#e84a8a',glasses:'shades',gc:'#ffc65a',shirt:'#2a2a2a'}}},
+ {name:'Live Rosin',art:'rosin',src:'White Widow',d:{name:'Press Pete',bio:'Owns three rosin presses and exactly one shirt.',look:{skin:'#f0c8a8',hat:'cap',hatC:'#3a7ab0',beard:'stubble',shirt:'#f5b942'}}},
+]);
+addDept(2,1e22,[
+ {name:'Pot Brownie',art:'brownie',src:'Kief',d:{name:'Auntie Bev',bio:'Bake-sale legend. Banned from four bake sales.',look:{skin:'#8a5a3a',hair:'bun',hc:'#d4d0cc',glasses:'round',gc:'#f7bcd9',shirt:'#e86a8a'}}},
+ {name:'Gummy Bears',art:'gummy',src:'Bubble Hash',d:{name:'Gummy Gaby',bio:'Color-codes everything, including you.',look:{skin:'#f2c4a0',hair:'long',hc:'#b896ff',band:'#f2c230',shirt:'#5ab4c2'}}},
+ {name:'Chip Cookies',art:'cookie',src:'Moon Rock',d:{name:'Crumbs McGee',bio:'Leaves a trail wherever he goes. Easy to find.',look:{skin:'#e8b892',hair:'messy',hc:'#c86a2a',beard:'stubble',shirt:'#7a4a2a'}}},
+ {name:'Infused Chocolate',art:'choc',src:'Charas',d:{name:'Chocolatier Jules',bio:'Trained in Belgium. Will mention it.',look:{skin:'#c48a62',hair:'short',hc:'#2a1a14',beard:'stache',shirt:'#f1e8db'}}},
+ {name:'Kush Cola',art:'soda',src:'Shatter',d:{name:'Fizz Washington',bio:'Shakes every can before handing it over. Every single time.',look:{skin:'#6a4228',hat:'cap',hatC:'#c42a3a',glasses:'shades',shirt:'#c42a3a'}}},
+ {name:'Space Cake',art:'cake',src:'Live Rosin',d:{name:'Chef Orbit',bio:'Five-star kitchen, zero-gravity attitude.',look:{skin:'#f0c8a8',hat:'bucket',hatC:'#f1e8db',hair:'long',hc:'#8a5a2a',shirt:'#f1e8db'}}},
+]);
+addDept(3,1e29,[
+ {name:'Pre-Roll',art:'preroll',src:'Lemon Haze',d:{name:'Rolling Rita',bio:'Rolls a perfect cone in four seconds with her eyes shut.',look:{skin:'#d9a37c',hair:'afro',hc:'#5a2a1a',band:'#b896ff',shirt:'#f7bcd9'}}},
+ {name:'Blunt',art:'blunt',src:'OG Kush',d:{name:'Wrapper Ray',bio:'Has opinions about leaf wraps. Many opinions.',look:{skin:'#8a5a3a',hat:'beanie',hatC:'#e8a030',beard:'stache',hc:'#1a1210',shirt:'#3a3a3a',joint:1}}},
+ {name:'Vape Cart',art:'vape',src:'Shatter',d:{name:'Cloud Chaser Kai',bio:'Blows smoke rings shaped like other smoke rings.',look:{skin:'#e6c0a0',hair:'short',hc:'#5ab4c2',glasses:'shades',gc:'#f7bcd9',shirt:'#1a1a2a'}}},
+ {name:'Twax Joint',art:'twax',src:'Kief',d:{name:'Twax Max',bio:'Coats everything in kief. Even his toast.',look:{skin:'#f2c4a0',hair:'messy',hc:'#f0d080',beard:'stubble',shirt:'#e8b030',joint:1}}},
+ {name:'Gravity Bong',art:'bong',src:'Strawberry Cough',d:{name:'Bucket Barry',bio:'Engineering degree. Uses it exclusively for this.',look:{skin:'#c48a62',hair:'bald',glasses:'round',gc:'#5ab4c2',beard:'full',hc:'#4a3a2a',shirt:'#3a7a5a'}}},
+ {name:'Gold Leaf Cigar',art:'cigar',src:'Golden Godbud',anim:'gold',d:{name:'Baron Von Blaze',bio:'Arrives by helicopter. Leaves by limousine.',look:{skin:'#f0c8a8',hair:'short',hc:'#e8e8f0',glasses:'round',gc:'#d4a020',beard:'stache',shirt:'#5a2e86'}}},
+]);
+P.forEach(p=>{p.src=p.src?P.findIndex(q=>q.name===p.src):-1});
+const N=P.length,ND=DEPTS.length;
+const DIDX=DEPTS.map((_,d)=>P.map((p,i)=>p.dept===d?i:-1).filter(i=>i>=0));
+
+const TIERS=[['Grow Lights','Hydro Setup','Smell-Proof Jars','Craft Label'],['Ice Water Wash','Rosin Press','Parchment Bulk Buy','Hashmaker Seal'],['Commercial Oven','Decarb Station','Cute Packaging','Dosing Lab'],['Rolling Machine','Gold Filters','Tin Cases','Lounge Couches']];
+const DUPS=[['Display Case','Menu Board Redesign','Award-Winning Line'],['Glass Counter','Hash Tasting Night','Cannabis Cup Win'],['Bakery Window','Late-Night Delivery','Edible of the Year'],['Velvet Rope','DJ on Weekends','Celebrity Lounge']];
+const GLOBALS=[['Neon OPEN Sign',1e8],['Loyalty Punch Cards',1e13],['Delivery App',1e18],['Highway Billboard',1e24],['Franchise Rights',1e30],['Space Dispensary',1e36],['Moon Franchise',1e42],['Galactic Chain',1e50],['Multiverse Menu',1e60]];
+const UPGRADES=[];
+P.forEach((p,i)=>TIERS[p.dept].forEach((t,k)=>UPGRADES.push({id:`s${i}t${k}`,name:t,target:i,dept:p.dept,cost:p.cost*25e3*Math.pow(1e5,k)})));
+DEPTS.forEach((d,j)=>DUPS[j].forEach((n,k)=>UPGRADES.push({id:`d${j}t${k}`,name:n,target:-1,dept:j,all:true,cost:d.upB*Math.pow(1e6,k)})));
+GLOBALS.forEach(([n,c],k)=>UPGRADES.push({id:`g${k}`,name:n,target:-1,dept:-1,cost:c}));
+UPGRADES.sort((a,b)=>a.cost-b.cost);
+const UPBY=Object.fromEntries(UPGRADES.map(u=>[u.id,u]));
+const MILES=[25,50,100,200,300,400,500,600,700,800,900,1000];
+const MENU=[50,150,300,600];
+const SAVE='highnumbers.v2',SAVE1='highnumbers.v1';
+
+/* ---------- state ---------- */
+const fresh=()=>({cash:0,run:0,life:0,clout:0,resets:0,walks:0,owned:P.map((_,i)=>i?0:1),prog:Array(N).fill(0),going:Array(N).fill(false),dealer:Array(N).fill(false),lic:DEPTS.map((_,d)=>d===0),up:[],mode:'1',clock:0,buffs:[],walk:null,nextWalk:45,t:Date.now()});
+let st;
+function pad(o){const f=fresh();for(const k of ['owned','prog','going','dealer','lic']){const a=f[k];(o[k]||[]).forEach((v,i)=>{if(i<a.length)a[i]=v});o[k]=a}return Object.assign(f,o)}
+
+/* ---------- economy ---------- */
+let UPM,DUP,GUP;
+function recalc(){UPM=Array(N).fill(1);DUP=Array(ND).fill(1);GUP=1;for(const id of st.up){const u=UPBY[id];if(!u)continue;if(u.target>=0)UPM[u.target]*=3;else if(u.all)DUP[u.dept]*=3;else GUP*=3}}
+const speed=i=>{let k=0;for(const m of MILES)if(st.owned[i]>=m)k++;return 2**k};
+function buff(kind,d){let m=1;for(const b of st.buffs)if(b.kind===kind&&b.until>st.clock&&(b.dept==null||b.dept===d))m*=b.x;return m}
+const cyc=i=>P[i].time/speed(i)/buff('speed',P[i].dept);
+const syn=i=>P[i].src>=0?1+.005*st.owned[P[i].src]:1;
+const menuLevel=d=>{let mn=Infinity;for(const i of DIDX[d])mn=Math.min(mn,st.owned[i]);let k=0;for(const m of MENU)if(mn>=m)k++;return {k,mn,next:MENU[k]}};
+const menuMult=d=>2**menuLevel(d).k;
+const cmult=()=>1+.02*st.clout;
+const mult=(i,noBuff)=>UPM[i]*DUP[P[i].dept]*GUP*syn(i)*menuMult(P[i].dept)*cmult()*(noBuff?1:buff('mult',P[i].dept));
+const rev=(i,noBuff)=>P[i].rev*Math.max(st.owned[i],1)*mult(i,noBuff);
+const costN=(i,n)=>{const s=P[i];return s.cost*s.coef**st.owned[i]*(s.coef**n-1)/(s.coef-1)};
+const maxN=i=>{const s=P[i];const b=s.cost*s.coef**st.owned[i];return Math.max(0,Math.floor(Math.log(st.cash*(s.coef-1)/b+1)/Math.log(s.coef)))};
+const nextMile=o=>MILES.find(m=>m>o)||(Math.floor(o/100)+1)*100;
+const buyN=i=>st.mode==='max'?Math.max(1,maxN(i)):st.mode==='next'?(st.owned[i]?nextMile(st.owned[i])-st.owned[i]:1):+st.mode;
+const perSec=noBuff=>{let r=0;for(let i=0;i<N;i++)if(st.dealer[i]&&st.owned[i])r+=rev(i,noBuff)/(noBuff?P[i].time/speed(i):cyc(i));return r};
+const cloutTotal=()=>Math.floor(150*Math.sqrt(st.life/1e15));
+const cloutGain=()=>Math.max(0,cloutTotal()-st.clout);
+function earn(x){st.cash+=x;st.run+=x;st.life+=x}
+const bestHarvest=()=>{let b=0;for(let i=0;i<N;i++)if(st.owned[i])b=Math.max(b,rev(i,true));return b};
+
+/* walk-ins */
+const EVENTS=[
+ {id:'tourist',w:3,title:'Tourist with a fanny pack',text:'Buys out the counter. Instant cash.',ok:()=>true,run:()=>{const g=Math.max(perSec(true)*90,bestHarvest()*12);earn(g);return `Tourist paid ${money(g)}`}},
+ {id:'happy',w:2,title:'4:20 happy hour',text:'Everything sells for 4× for 30 seconds.',ok:()=>true,run:()=>{addBuff('mult',null,4,30,'All sales ×4');return 'Happy hour! All sales ×4'}},
+ {id:'influencer',w:2,title:'Influencer posts a story',text:'Every grow runs 3× faster for 30 seconds.',ok:()=>true,run:()=>{addBuff('speed',null,3,30,'All speed ×3');return 'Going viral. All speed ×3'}},
+ {id:'munchies',w:2,title:'Munchies rush',text:'Edibles sell for 7× for 30 seconds.',ok:()=>st.lic[2],run:()=>{addBuff('mult',2,7,30,'Edibles ×7');return 'Munchies rush! Edibles ×7'}},
+ {id:'hashhead',w:2,title:'Hash connoisseur',text:'Hash sells for 7× for 30 seconds.',ok:()=>st.lic[1],run:()=>{addBuff('mult',1,7,30,'Hash ×7');return 'Connoisseur in the house. Hash ×7'}},
+ {id:'party',w:2,title:'Bachelor party',text:'Smokables sell for 7× for 30 seconds.',ok:()=>st.lic[3],run:()=>{addBuff('mult',3,7,30,'Smokables ×7');return 'Bachelor party! Smokables ×7'}},
+ {id:'snob',w:2,title:'Flower snob',text:'Flower sells for 7× for 30 seconds.',ok:()=>!st.lic[2],run:()=>{addBuff('mult',0,7,30,'Flower ×7');return 'Flower snob approves. Flower ×7'}},
+ {id:'tip',w:2,title:"Grower's tip",text:'Free stock of one of your products.',ok:()=>true,run:()=>{const own=P.map((_,i)=>i).filter(i=>st.owned[i]&&st.lic[P[i].dept]);const i=own[Math.floor(Math.random()*own.length)];const n=Math.max(3,Math.round(st.owned[i]*.1));st.owned[i]+=n;return `+${n} free ${P[i].name}`}},
+];
+function addBuff(kind,dept,x,sec,label){st.buffs.push({kind,dept,x,until:st.clock+sec,label})}
+function spawnWalk(){const pool=EVENTS.filter(e=>e.ok());let tot=pool.reduce((a,e)=>a+e.w,0),r=Math.random()*tot;let e=pool[0];for(const x of pool){r-=x.w;if(r<=0){e=x;break}}
+ st.walk={id:e.id,until:st.clock+15,seed:Math.floor(Math.random()*1e6)}}
+function serveWalk(){if(!st.walk)return null;const e=EVENTS.find(x=>x.id===st.walk.id);st.walk=null;st.walks++;st.nextWalk=st.clock+40+Math.random()*50;return e.run()}
+
+function tick(dt,onHarvest){
+ st.clock+=dt;
+ if(st.buffs.length&&st.buffs.some(b=>b.until<=st.clock))st.buffs=st.buffs.filter(b=>b.until>st.clock);
+ if(st.walk&&st.walk.until<=st.clock){st.walk=null;st.nextWalk=st.clock+40+Math.random()*50}
+ if(!st.walk&&st.clock>=st.nextWalk)spawnWalk();
+ for(let i=0;i<N;i++){if(!st.owned[i]||!(st.dealer[i]||st.going[i]))continue;
+  const t=cyc(i);st.prog[i]+=dt/t;
+  if(st.prog[i]>=1){let n;if(st.dealer[i]){n=Math.floor(st.prog[i]);st.prog[i]-=n}else{n=1;st.prog[i]=0;st.going[i]=false}
+   const g=rev(i)*n;earn(g);onHarvest&&onHarvest(i,g)}}
+}
+function away(sec){const g=perSec(true)*sec;if(g>0)earn(g);st.clock+=sec;st.buffs=[];if(st.walk&&st.walk.until<=st.clock)st.walk=null;return g}
+
+/* formatting */
+const SUF=['','','million','billion','trillion','quadrillion','quintillion','sextillion','septillion','octillion','nonillion','decillion','undecillion','duodecillion','tredecillion','quattuordecillion','quindecillion'];
+function fmt(n){if(!isFinite(n))return '∞';if(n<1000)return n.toFixed(2);if(n<1e6)return Math.floor(n).toLocaleString('en-US');const e=Math.floor(Math.log10(n)/3);if(e<SUF.length)return (n/10**(e*3)).toFixed(3)+' '+SUF[e];return n.toExponential(3)}
+const money=n=>'$'+fmt(n);
+const whole=n=>n<1e6?Math.floor(n).toLocaleString('en-US'):fmt(n);
+function hms(s){if(s<1)return s.toFixed(2)+'s';s=Math.ceil(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return [h,m,x].map(v=>String(v).padStart(2,'0')).join(':')}
+/*ENDCORE*/
+
+if(typeof document==='undefined')return;
+function drawFace(cv,p){const G=16,g=new Array(G*G).fill(null);
+ const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&y>=0&&x<G&&y<G)g[y*G+x]=c};
+ const ell=(cx,cy,rx,ry,c,ymax=99)=>{for(let y=0;y<G;y++)for(let x=0;x<G;x++)if(y<=ymax&&((x+.5-cx)/rx)**2+((y+.5-cy)/ry)**2<=1)set(x,y,c)};
+ const sk=p.skin,skd=shade(sk,-.22),hc=p.hc||'#222';
+ if(p.hair==='afro')ell(8,6,6.6,5.6,hc);
+ if(p.hair==='long'){ell(8,7,5.4,5.6,hc);for(let y=7;y<13;y++){set(3,y,hc);set(12,y,hc)}}
+ if(p.hair==='bun')ell(8,1.8,2.2,1.6,hc);
+ for(let y=13;y<16;y++)for(let x=(y===13?4:2);x<=(y===13?11:13);x++)set(x,y,y===13?shade(p.shirt,.12):p.shirt);
+ for(let y=11;y<13;y++)for(let x=6;x<=9;x++)set(x,y,skd);
+ ell(8,7.2,4.3,4.8,sk);set(3,7,sk);set(12,7,sk);
+ if(p.hair==='short'||p.hair==='bun')ell(8,4.6,4.6,2.6,hc,4);
+ if(p.hair==='messy'){ell(8,4.6,4.7,2.8,hc,4);[3,5,8,10,12].forEach(x=>set(x,1+(x%2),hc))}
+ if(p.hair==='long')ell(8,4.4,4.8,2.6,hc,4);
+ if(p.hair==='afro')ell(8,4.2,5,2.6,hc,4);
+ if(p.hair==='bald')set(6,3,shade(sk,.25));
+ if(p.band)for(let x=4;x<=11;x++)set(x,4,p.band);
+ // eyes, heavy lids
+ [[5,6],[9,10]].forEach(([w,pu])=>{set(w,7,'#f2c7c4');set(pu,7,'#2a1714');set(w,6,skd);set(pu,6,skd)});
+ set(8,8,skd);
+ for(let x=7;x<=9;x++)set(x,10,'#7a3a34');
+ if(p.beard==='full'){for(let y=9;y<=12;y++)for(let x=4;x<=11;x++){if(y===12&&(x<5||x>10))continue;if(g[y*G+x]===sk||g[y*G+x]===skd)set(x,y,hc)}for(let x=7;x<=9;x++)set(x,10,shade(hc,-.4))}
+ if(p.beard==='stache')for(let x=6;x<=10;x++)set(x,9,hc);
+ if(p.beard==='stubble')for(let y=10;y<=11;y++)for(let x=4;x<=11;x++)if((x+y)%2&&g[y*G+x]===sk)set(x,y,skd);
+ if(p.glasses==='shades'){for(let x=4;x<=11;x++)set(x,7,'#111014');set(5,7,p.gc||'#4a4a6a');set(9,7,p.gc||'#4a4a6a')}
+ if(p.glasses==='round'){const gc=p.gc||'#222';[4,7,8,11].forEach(x=>set(x,7,gc));[5,6,9,10].forEach(x=>{set(x,6,gc);set(x,8,gc)})}
+ if(p.hat==='beanie'){for(let y=1;y<=4;y++)for(let x=3;x<=12;x++){if(y===1&&(x<5||x>10))continue;set(x,y,y===4?shade(p.hatC,-.25):p.hatC)}set(8,0,shade(p.hatC,.35))}
+ if(p.hat==='bucket'){for(let y=1;y<=3;y++)for(let x=4;x<=11;x++)set(x,y,p.hatC);for(let x=2;x<=13;x++)set(x,4,shade(p.hatC,-.25))}
+ if(p.hat==='cap'){for(let y=1;y<=4;y++)for(let x=4;x<=11;x++){if(y===1&&(x<5||x>10))continue;set(x,y,p.hatC)}for(let x=10;x<=14;x++)set(x,4,shade(p.hatC,-.3))}
+ if(p.joint){set(10,10,'#f4efe6');set(11,10,'#f4efe6');set(12,10,'#ff7a2a');set(13,8,'#9a90a8');set(14,7,'#b8aec4');set(13,6,'#9a90a8')}
+ const out=g.slice();for(let y=0;y<G;y++)for(let x=0;x<G;x++){const i=y*G+x;if(g[i])continue;if((x>0&&g[i-1])||(x<G-1&&g[i+1])||(y>0&&g[i-G])||(y<G-1&&g[i+G]))out[i]='#09060c'}
+ cv.getContext('2d').putImageData(toImage(out,G),0,0);
+}
+
+
+/* ---------- sprites ---------- */
+const SIL={b:'#2c2236',o:'#3f3150'};
+const SPR=P.map((p,i)=>{const b=p.look?makeBud(p.look):ART[p.art](rng(i*31+7));
+ const filled=new Set(b.bodyIdx);const silPx=b.px.map((c,j)=>c?(filled.has(j)?SIL.b:SIL.o):null);
+ return {...b,img:toImage(b.px,G),sil:toImage(silPx,G)}});
+const canvases=[];
+function reg(cv,i){const o={cv,i,sil:false};canvases.push(o);paint(o,0);return o}
+function paint(o,tick){const ctx=o.cv.getContext('2d');const B=SPR[o.i];ctx.putImageData(o.sil?B.sil:B.img,0,0);
+ if(o.sil)return;const a=P[o.i].anim;if(!a)return;const r=rng(tick*977+o.i);
+ const dot=(x,y,c)=>{if(x<0||y<0||x>=G||y>=G)return;ctx.fillStyle=c;ctx.fillRect(x,y,1,1)};
+ if(a==='frost'||a==='cosmic'){const n=a==='cosmic'?5:3;for(let k=0;k<n;k++){const i=B.bodyIdx[Math.floor(r()*B.bodyIdx.length)];dot(i%G,(i/G)|0,'#ffffff')}}
+ if(a==='cosmic'){dot(Math.floor(r()*30)+1,Math.floor(r()*8)+1,'#ff9ee8')}
+ if(a==='gold'){for(let k=0;k<2;k++){const i=B.bodyIdx[Math.floor(r()*B.bodyIdx.length)];const x=i%G,y=(i/G)|0;dot(x,y,'#ffffff');dot(x-1,y,'#fff2a8');dot(x+1,y,'#fff2a8');dot(x,y-1,'#fff2a8');dot(x,y+1,'#fff2a8')}}
+}
+let animTick=0;setInterval(()=>{animTick++;for(const o of canvases)if(!o.sil&&P[o.i].anim&&o.cv.isConnected&&o.cv.offsetParent)paint(o,animTick)},300);
+
+/* ---------- DOM ---------- */
+const $=s=>document.querySelector(s);
+const setT=(el,v)=>{if(el._t!==v){el._t=v;el.textContent=v}};
+let tab='shop',dept=0;
+
+/* department chips */
+const deptsEl=$('#depts');
+const chips=DEPTS.map((d,j)=>{const b=document.createElement('button');b.className='dchip';b.innerHTML=`<canvas class="px" width="32" height="32"></canvas><span>${d.name}</span>`;
+ deptsEl.append(b);const c=reg(b.querySelector('canvas'),d.icon);b.addEventListener('click',()=>{dept=j;ui(true)});return {b,c}});
+
+/* product rows */
+const shelf=$('#shelf');
+const rows=P.map((s,i)=>{
+ const el=document.createElement('div');el.className='row';
+ el.innerHTML=`<button class="bud" aria-label="Make a batch of ${s.name}"><canvas class="px" width="32" height="32"></canvas><span class="owned">0</span></button>
+ <div class="mid"><div class="nm"><b>${s.name}</b><span class="who"></span></div>
+ <div class="bar"><div class="fill"></div><span class="rev"></span></div>
+ <div class="meta"><button class="buy"><span class="bl"></span><b class="bc"></b></button><span class="time"></span></div>
+ <div class="ms"><span class="mt"></span><span class="track"><i></i></span>${s.src>=0?'<span class="syn"></span>':''}</div></div>`;
+ shelf.append(el);
+ const R={el,bud:el.querySelector('.bud'),own:el.querySelector('.owned'),who:el.querySelector('.who'),bar:el.querySelector('.bar'),fill:el.querySelector('.fill'),rev:el.querySelector('.rev'),buy:el.querySelector('.buy'),bl:el.querySelector('.bl'),bc:el.querySelector('.bc'),time:el.querySelector('.time'),mt:el.querySelector('.mt'),mi:el.querySelector('.track i'),syn:el.querySelector('.syn'),lastPop:0};
+ R.cv=reg(el.querySelector('canvas'),i);
+ R.bud.addEventListener('click',()=>{if(st.owned[i]&&!st.dealer[i]&&!st.going[i])st.going[i]=true});
+ R.buy.addEventListener('click',()=>buy(i));
+ return R;
+});
+/* header logo: the coin flips every so often, shows 420, lands back on the leaf */
+const logo=$('#logo'),lctx=logo.getContext('2d');
+const COIN_IMG={leaf:toImage(coinPx('leaf'),G),back:toImage(coinPx('420'),G)};
+lctx.putImageData(COIN_IMG.leaf,0,0);
+let flipping=false;
+function flipCoin(){
+ if(flipping)return;
+ try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
+ flipping=true;const t0=performance.now(),D=1100;let side='leaf';
+ const step=now=>{const p=Math.min(1,(now-t0)/D),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2,a=e*Math.PI*2,c=Math.cos(a),want=c<0?'back':'leaf';
+  if(want!==side){side=want;lctx.putImageData(COIN_IMG[side],0,0)}
+  logo.style.transform=`translateY(${(-Math.sin(e*Math.PI)*8).toFixed(1)}px) scaleX(${Math.max(.08,Math.abs(c)).toFixed(3)})`;
+  if(p<1)requestAnimationFrame(step);else{logo.style.transform='';lctx.putImageData(COIN_IMG.leaf,0,0);flipping=false}};
+ requestAnimationFrame(step)}
+(function sched(){setTimeout(()=>{if(!document.hidden)flipCoin();sched()},8000+Math.random()*12000)})();
+logo.addEventListener('click',flipCoin);
+setTimeout(flipCoin,1200);
+
+
+function buy(i){if(!st.lic[P[i].dept])return;const n=buyN(i),c=costN(i,n);if(n<1||c>st.cash)return;const before=speed(i),mb=menuLevel(P[i].dept).k,first=!st.owned[i];
+ st.cash-=c;st.owned[i]+=n;
+ if(first)toast(`New on the menu: ${P[i].name}`);
+ else if(speed(i)>before)toast(`${P[i].name} runs ${speed(i)/before}× faster`);
+ if(menuLevel(P[i].dept).k>mb)toast(`Full Menu! ${DEPTS[P[i].dept].name} profit ×2`);
+ ui(true)}
+
+/* license card */
+const licEl=$('#license');
+function renderLicense(){const d=DEPTS[dept];
+ const items=DIDX[dept];
+ licEl.innerHTML=`<h3>${d.sign} license</h3><p>${d.blurb}</p><div class="row-sprites">${items.map(()=>'<canvas class="px" width="32" height="32"></canvas>').join('')}</div><p class="lreq"></p><button class="buy lbtn"><span>Buy license</span><b>${money(d.license)}</b></button>`;
+ licEl.querySelectorAll('canvas').forEach((cv,k)=>{const o=reg(cv,items[k]);o.sil=true;paint(o,0)});
+ licEl.querySelector('.lbtn').addEventListener('click',()=>{if(st.cash>=d.license&&st.life>=d.unlock&&!st.lic[dept]){st.cash-=d.license;st.lic[dept]=true;toast(`${d.sign} is open`);buildDealers();buildUpgrades();ui(true)}});
+ licEl._d=dept}
+
+/* dealers */
+const dealersEl=$('#dealers');let dcards=[];
+function buildDealers(){dealersEl.innerHTML='';dcards=[];
+ DEPTS.forEach((d,j)=>{const g=document.createElement('div');g.className='group';g.innerHTML=`<h2>${d.sign}</h2>`;dealersEl.append(g);
+  if(!st.lic[j]){const n=document.createElement('div');n.className='note';n.textContent=`Open the ${d.sign} to meet these ${DIDX[j].length} dealers.`;g.append(n);return}
+  const grid=document.createElement('div');grid.className='grid';g.append(grid);
+  for(const i of DIDX[j]){const dd=P[i].d;const el=document.createElement('div');el.className='card';
+   el.innerHTML=`<div class="head"><div class="face"><canvas class="px" width="16" height="16"></canvas></div><div><h3>${dd.name}</h3><div class="runs"><canvas class="px" width="32" height="32"></canvas>Runs ${P[i].name}</div></div></div><p>${dd.bio}</p><div class="act"></div>`;
+   grid.append(el);drawFace(el.querySelector('.face canvas'),dd.look);const rc=reg(el.querySelector('.runs canvas'),i);
+   const btn=document.createElement('button');btn.className='buy';btn.innerHTML=`<span class="hl">Hire</span><b>${money(dd.cost)}</b>`;
+   btn.addEventListener('click',()=>{if(st.cash>=dd.cost&&st.owned[i]&&!st.dealer[i]){st.cash-=dd.cost;st.dealer[i]=true;toast(`${dd.name} is on the clock`);ui(true)}});
+   const badge=document.createElement('span');badge.className='badge';badge.textContent='On the clock';
+   el.querySelector('.act').append(btn,badge);dcards.push({i,el,btn,badge,rc,hl:btn.querySelector('.hl')})}
+ })}
+
+/* upgrades */
+const upEl=$('#upgrades');let upRows=[];
+function buildUpgrades(){recalc();upEl.innerHTML='';upRows=[];
+ const list=UPGRADES.filter(u=>!st.up.includes(u.id)&&(u.dept<0||st.lic[u.dept])).slice(0,16);
+ if(!list.length){upEl.innerHTML='<div class="note">Nothing left to buy right now. Open a new department for more.</div>';return}
+ for(const u of list){const el=document.createElement('div');el.className='urow';
+  const tname=u.target>=0?P[u.target].name:u.all?`All ${DEPTS[u.dept].name.toLowerCase()}`:'Everything';
+  const ic=u.target>=0?'<canvas class="px" width="32" height="32"></canvas>':u.all?DEPTS[u.dept].name.slice(0,5).toUpperCase():'ALL';
+  el.innerHTML=`<div class="ic">${ic}</div><div class="tx"><b>${u.name}</b><span>${tname} profit ×3</span></div><button class="buy"><b>${money(u.cost)}</b></button>`;
+  upEl.append(el);if(u.target>=0)reg(el.querySelector('canvas'),u.target);
+  const b=el.querySelector('.buy');b.addEventListener('click',()=>{if(st.cash>=u.cost){st.cash-=u.cost;st.up.push(u.id);toast(`${u.name}: ${tname} ×3`);buildUpgrades();ui(true)}});
+  upRows.push({u,b})}
+}
+
+/* tabs and buy mode */
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+ ['shop','dealers','upgrades','clout'].forEach(t=>$('#tab-'+t).hidden=t!==tab);ui(true)}));
+document.querySelectorAll('#buybar button').forEach(b=>b.addEventListener('click',()=>{st.mode=b.dataset.m;syncMode();ui(true)}));
+function syncMode(){document.querySelectorAll('#buybar button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===st.mode))}
+
+/* walk-in */
+const wk=$('#walkin'),wkCv=wk.querySelector('canvas'),wkT=wk.querySelector('b'),wkS=wk.querySelector('.wt span'),wkL=wk.querySelector('.tl');let wkSeed=-1;
+const SKINS=['#f2c4a0','#e8b892','#d9a37c','#c48a62','#a8724c','#8a5a3a','#6a4228'],HCS=['#1a1210','#3a2a1a','#7a4a22','#c9a050','#e8e8f0','#c86a2a','#b896ff'],SHIRTS=['#e86a8a','#5ab4c2','#f5b942','#3a7a5a','#6a3aa8','#e8ecf4','#c42a3a'];
+function walkLook(seed){const r=rng(seed),pick=a=>a[Math.floor(r()*a.length)];const L={skin:pick(SKINS),hc:pick(HCS),shirt:pick(SHIRTS),hair:pick(['short','long','afro','messy','bun','bald'])};
+ const h=r();if(h<.2){L.hat='cap';L.hatC=pick(SHIRTS)}else if(h<.35){L.hat='bucket';L.hatC=pick(SHIRTS)}else if(h<.45){L.hat='beanie';L.hatC=pick(SHIRTS)}
+ const g=r();if(g<.25)L.glasses='shades';else if(g<.4){L.glasses='round';L.gc=pick(HCS)}
+ const b=r();if(b<.2)L.beard='full';else if(b<.35)L.beard='stache';return L}
+wk.addEventListener('click',()=>{const m=serveWalk();if(m)toast(m);ui(true)});
+
+/* clout */
+let armed=0;
+$('#legit').addEventListener('click',()=>{const g=cloutGain();if(g<1)return;const b=$('#legit');
+ if(Date.now()-armed>3000){armed=Date.now();b.classList.add('arm');b.textContent=`Tap again to sell everything for ${g} Clout`;setTimeout(()=>{if(armed&&Date.now()-armed>=3000){b.classList.remove('arm');ui(true)}},3100);return}
+ armed=0;b.classList.remove('arm');const keep={clout:st.clout+g,life:st.life,mode:st.mode,resets:st.resets+1,walks:st.walks};st=Object.assign(fresh(),keep);dept=0;rebuild();toast(`You went legit. +${g} Clout`);save()});
+let wipeArm=0;
+$('#wipe').addEventListener('click',()=>{const b=$('#wipe');if(Date.now()-wipeArm>3000){wipeArm=Date.now();b.textContent='Tap again to erase everything';setTimeout(()=>b.textContent='Erase save',3000);return}
+ st=fresh();dept=0;rebuild();save();b.textContent='Erase save';toast('Save erased');if(AUTH)cloudSync(true)});
+
+/* feedback */
+let toastTimer;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,2200)}
+function pop(i,g){const R=rows[i];const now=performance.now();if(now-R.lastPop<380||tab!=='shop'||P[i].dept!==dept)return;R.lastPop=now;
+ const s=document.createElement('span');s.className='pop';s.textContent='+'+money(g);R.bud.append(s);setTimeout(()=>s.remove(),950)}
+$('#m-ok').addEventListener('click',()=>$('#modal').hidden=true);
+
+/* ---------- render ---------- */
+function ui(force){
+ setT($('#cash'),money(st.cash));
+ setT($('#rate'),money(perSec())+' / sec from dealers');
+ // buffs
+ const bs=st.buffs.filter(b=>b.until>st.clock).map(b=>`${b.label} · ${Math.ceil(b.until-st.clock)}s`).join('|');
+ const be=$('#buffs');if(be._t!==bs){be._t=bs;be.innerHTML=bs?bs.split('|').map(x=>`<span class="buff">${x}</span>`).join(''):''}
+ // walk-in
+ if(st.walk){const e=EVENTS.find(x=>x.id===st.walk.id);wk.hidden=false;if(wkSeed!==st.walk.seed){wkSeed=st.walk.seed;drawFace(wkCv,walkLook(wkSeed));wkT.textContent=e.title;wkS.textContent=e.text}
+  wkL.style.width=Math.max(0,(st.walk.until-st.clock)/15*100)+'%'}else wk.hidden=true;
+ // dept chips
+ chips.forEach((c,j)=>{c.b.setAttribute('aria-pressed',j===dept);c.b.classList.toggle('locked',!st.lic[j]);if(c.c.sil!==!st.lic[j]){c.c.sil=!st.lic[j];paint(c.c,animTick)}});
+ const D=DEPTS[dept],lic=st.lic[dept];
+ setT($('#dname'),D.sign);
+ const ml=menuLevel(dept);
+ const mm=$('#dmenu');const mtxt=lic?`Full Menu ×${2**ml.k}`+(ml.next?` · stock every ${D.name.toLowerCase()} item to ${ml.next} for ×2 (lowest: ${whole(ml.mn)})`:' · maxed'):'';
+ if(mm._t!==mtxt){mm._t=mtxt;mm.innerHTML=lic?`<b>Full Menu ×${2**ml.k}</b>`+(ml.next?` · stock every item to ${ml.next} for ×2 (lowest: ${whole(ml.mn)})`:' · maxed'):''}
+ $('#buybar').hidden=!lic||tab!=='shop';
+ licEl.hidden=lic;
+ if(!lic){if(licEl._d!==dept)renderLicense();const ok=st.life>=D.unlock;licEl.querySelector('.lreq').textContent=ok?`Opens ${DIDX[dept].length} new products and their dealers.`:`Unlocks after ${money(D.unlock)} in lifetime sales (you're at ${money(st.life)}).`;licEl.querySelector('.lbtn').disabled=!ok||st.cash<D.license}
+ let dDot=false,uDot=false;
+ for(let i=0;i<N;i++){const R=rows[i],own=st.owned[i],p=P[i];
+  R.el.hidden=p.dept!==dept||!lic;
+  const d=st.dealer[i];
+  if(st.lic[p.dept]&&!d&&own&&st.cash>=p.d.cost)dDot=true;
+  if(R.el.hidden)continue;
+  R.el.classList.toggle('locked',!own);
+  if(R.cv.sil!==!own){R.cv.sil=!own;paint(R.cv,animTick)}
+  setT(R.own,whole(own));
+  R.who.classList.toggle('on',d);
+  setT(R.who,d?`${p.d.name} on the clock`:own?(st.going[i]?'Making a batch…':'Tap to make a batch'):'Not stocked yet');
+  R.bud.disabled=!own||d;
+  R.bud.classList.toggle('ready',!!own&&!d&&!st.going[i]);
+  setT(R.rev,money(rev(i))+' per batch');
+  const n=buyN(i),c=costN(i,n);
+  setT(R.bl,own?`Buy ×${whole(n)}`:`Stock ${p.name}`);setT(R.bc,money(c));
+  R.buy.disabled=c>st.cash;
+  const t=cyc(i);setT(R.time,(d||st.going[i])?hms((1-st.prog[i])*t):hms(t));
+  const next=MILES.find(m=>m>own);
+  if(next){const prev=[0,...MILES].filter(m=>m<=own).pop();setT(R.mt,`Speed ×2 at ${next}`);R.mi.style.width=((own-prev)/(next-prev)*100)+'%'}
+  else{setT(R.mt,'Max speed');R.mi.style.width='100%'}
+  if(R.syn)setT(R.syn,`Made with ${P[p.src].name} · +${fmt(st.owned[p.src]*.5).replace(/\.00$/,'')}%`);
+ }
+ for(const c of dcards){const i=c.i,own=st.owned[i],d=st.dealer[i];c.el.classList.toggle('hired',d);c.btn.hidden=d;c.badge.hidden=!d;c.btn.disabled=d||!own||st.cash<P[i].d.cost;
+  setT(c.hl,own?'Hire':`Stock ${P[i].name} first ·`);if(c.rc.sil!==!own){c.rc.sil=!own;paint(c.rc,animTick)}}
+ for(const r of upRows){r.b.disabled=st.cash<r.u.cost;if(!r.b.disabled)uDot=true}
+ const g=cloutGain();
+ document.querySelector('[data-tab=dealers] .dot').hidden=!dDot||tab==='dealers';
+ document.querySelector('[data-tab=upgrades] .dot').hidden=!uDot||tab==='upgrades';
+ document.querySelector('[data-tab=clout] .dot').hidden=!(g>=Math.max(10,st.clout*.5))||tab==='clout';
+ setT($('#cl-have'),whole(st.clout));setT($('#cl-bonus'),'+'+whole(st.clout*2)+'%');
+ setT($('#cl-gain'),whole(g));setT($('#cl-life'),money(st.life));setT($('#cl-walk'),whole(st.walks));setT($('#cl-resets'),whole(st.resets));
+ const lb=$('#legit');lb.disabled=g<1;if(!lb.classList.contains('arm'))setT(lb,g<1?`Go legit (next Clout at ${money(((st.clout+1)/150)**2*1e15)} lifetime)`:`Go legit for +${whole(g)} Clout`);
+}
+function bars(){for(let i=0;i<N;i++){const R=rows[i];if(R.el.hidden)continue;const t=cyc(i),active=st.owned[i]&&(st.dealer[i]||st.going[i]);
+ const blur=st.dealer[i]&&t<.2;R.bar.classList.toggle('blur',!!blur);if(!blur)R.fill.style.width=(active?st.prog[i]*100:0)+'%'}}
+function rebuild(){recalc();syncMode();buildDealers();buildUpgrades();licEl._d=-1;ui(true)}
+
+/* dock height for mobile padding */
+const dock=$('#dock');
+const setDock=()=>document.documentElement.style.setProperty('--dockH',dock.offsetHeight+'px');
+try{new ResizeObserver(setDock).observe(dock)}catch(e){addEventListener('resize',setDock)}
+
+/* =====================================================================
+   ACCOUNT + CLOUD SYNC: one Orchid-42 account (Supabase) for every game.
+   The save with more lifetime sales wins, so nobody loses progress.
+   ===================================================================== */
+const CLOUD={url:'https://mjqhqchnstoboxbkaicv.supabase.co',key:'sb_publishable_WJ3_9XN_5yqdSYVQ6nEiVA_ooijd773',google:'973222019085-na3po9bgpuvfv3hn40q2gjplgvd9ufbm.apps.googleusercontent.com',game:'highnumbers'};
+const AKEY='orchid42.auth';
+const CLOUD_TOP=(()=>{try{return window.self===window.top}catch(e){return false}})();
+const cloudOn=()=>!!(CLOUD.url&&CLOUD.key&&CLOUD_TOP&&location.protocol.startsWith('http'));
+const SITE=location.origin+location.pathname;
+let AUTH=(()=>{try{return JSON.parse(localStorage.getItem(AKEY))||null}catch(e){return null}})();
+const SYNC={state:'idle',at:0,dirty:false,busy:false,again:false};
+let AUTH_NOTE='',AUTH_RECOVERY=false;
+function authSave(a){AUTH=a;try{a?localStorage.setItem(AKEY,JSON.stringify(a)):localStorage.removeItem(AKEY)}catch(e){}}
+const userOf=u=>u?{id:u.id,email:u.email||(u.user_metadata&&u.user_metadata.email)||''}:null;
+function sessionFrom(j,user){return {access_token:j.access_token,refresh_token:j.refresh_token,expires_at:+j.expires_at||Math.floor(Date.now()/1000)+(+j.expires_in||3600),user:userOf(j.user)||user||null}}
+async function authFresh(){
+ if(!AUTH||AUTH.expires_at-60>Date.now()/1000)return;
+ if(authFresh.p)return authFresh.p;
+ authFresh.p=(async()=>{try{
+   const r=await fetch(CLOUD.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:CLOUD.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:AUTH.refresh_token})});
+   const j=await r.json().catch(()=>({}));
+   if(!r.ok){if(r.status>=400&&r.status<500)authSave(null);throw Object.assign(new Error(j.msg||j.error_description||'session'),{status:401})}
+   authSave(sessionFrom(j,AUTH&&AUTH.user));
+  }finally{authFresh.p=null}})();
+ return authFresh.p;
+}
+async function sb(path,opt={},asUser=true){
+ const h={apikey:CLOUD.key,'Content-Type':'application/json',...(opt.headers||{})};
+ if(asUser){await authFresh();if(!AUTH)throw Object.assign(new Error('signed out'),{status:401});h.Authorization='Bearer '+AUTH.access_token}
+ const r=await fetch(CLOUD.url+path,{...opt,headers:h});
+ const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(e){}
+ if(!r.ok)throw Object.assign(new Error((j&&(j.msg||j.message||j.error_description||j.error))||('HTTP '+r.status)),{status:r.status,code:j&&(j.error_code||j.code)});
+ return j;
+}
+async function authSignIn(email,pw){const j=await sb('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pw})},false);authSave(sessionFrom(j))}
+async function authSignUp(email,pw){const j=await sb('/auth/v1/signup?redirect_to='+encodeURIComponent(SITE),{method:'POST',body:JSON.stringify({email,password:pw})},false);
+ if(j&&j.access_token){authSave(sessionFrom(j));return 'in'}return 'confirm'}
+let GIS_P=null;
+function loadGis(){if(window.google&&google.accounts&&google.accounts.id)return Promise.resolve();if(GIS_P)return GIS_P;
+ GIS_P=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=()=>res();s.onerror=()=>{GIS_P=null;rej(new Error('gis'))};document.head.appendChild(s);setTimeout(()=>rej(new Error('gis timeout')),9000)});
+ return GIS_P}
+const b64url=u8=>btoa(String.fromCharCode(...u8)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+function googleFallback(box){box.innerHTML='<button class="gbtn" data-act="agoogle"><i>G</i>Continue with Google</button>'}
+async function mountGoogle(){
+ const box=document.getElementById('gbox');if(!box)return;
+ if(!CLOUD.google||!window.crypto||!crypto.subtle){googleFallback(box);return}
+ try{await loadGis()}catch(e){const b=document.getElementById('gbox');if(b)googleFallback(b);return}
+ const el=document.getElementById('gbox');if(!el)return;
+ const raw=b64url(crypto.getRandomValues(new Uint8Array(24)));
+ const hashed=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+ google.accounts.id.initialize({client_id:CLOUD.google,nonce:hashed,ux_mode:'popup',auto_select:false,itp_support:true,callback:res=>googleCredential(res.credential,raw)});
+ el.innerHTML='';google.accounts.id.renderButton(el,{type:'standard',theme:'filled_black',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'center',width:Math.round(Math.max(200,Math.min(400,el.clientWidth||300)))});
+}
+async function googleCredential(token,raw){
+ try{amsg('One moment…');
+  const j=await sb('/auth/v1/token?grant_type=id_token',{method:'POST',body:JSON.stringify({provider:'google',id_token:token,nonce:raw})},false);
+  authSave(sessionFrom(j));closeSheet();toast("You're signed in");await cloudSync();acctUI();
+ }catch(e){amsg(authError(e),'err')}
+}
+function authGoogle(){location.href=CLOUD.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(SITE)}
+async function authForgot(email){await sb('/auth/v1/recover?redirect_to='+encodeURIComponent(SITE),{method:'POST',body:JSON.stringify({email})},false)}
+async function authSetPassword(pw){await sb('/auth/v1/user',{method:'PUT',body:JSON.stringify({password:pw})})}
+async function authSignOut(){try{await sb('/auth/v1/logout',{method:'POST'})}catch(e){}authSave(null);SYNC.state='idle';SYNC.at=0}
+function authFromUrl(){
+ const h=location.hash;if(!h||h.length<3)return;const p=new URLSearchParams(h.slice(1));
+ if(p.get('error')||p.get('error_description')){AUTH_NOTE=(p.get('error_description')||p.get('error')).replace(/\+/g,' ');history.replaceState(null,'',SITE);return}
+ if(!p.get('access_token'))return;
+ authSave({access_token:p.get('access_token'),refresh_token:p.get('refresh_token'),expires_at:+p.get('expires_at')||Math.floor(Date.now()/1000)+(+p.get('expires_in')||3600),user:null});
+ const type=p.get('type');if(type==='recovery')AUTH_RECOVERY=true;else AUTH_NOTE=type==='signup'?"Email confirmed. You're signed in":"You're signed in";
+ history.replaceState(null,'',SITE);
+}
+function authError(e){const m=(e&&e.message||'').toLowerCase(),c=e&&e.code;
+ if(e instanceof TypeError||m.includes('failed to fetch')||m.includes('network'))return "Can't reach the server. Check your connection.";
+ if(c==='invalid_credentials'||m.includes('invalid login'))return 'Wrong email or password.';
+ if(c==='email_not_confirmed'||m.includes('not confirmed'))return 'Confirm your email first. Check your inbox.';
+ if(c==='user_already_exists'||m.includes('already registered'))return 'That email already has an account. Sign in instead.';
+ if(c==='weak_password'||m.includes('password should'))return 'Use a password with at least 6 characters.';
+ if(c==='over_email_send_rate_limit'||m.includes('rate limit'))return 'Too many emails for now. Try again in an hour.';
+ if(m.includes('valid email')||c==='validation_failed')return 'Enter a valid email address.';
+ return e&&e.message||'Something went wrong.'}
+
+/* ---- sync ---- */
+const better=(a,b)=>((a.life||0)>(b.life||0))||((a.life||0)===(b.life||0)&&(a.t||0)>=(b.t||0));
+const syncText=()=>!navigator.onLine?"Offline. Progress syncs when you're back online.":SYNC.state==='syncing'?'Syncing…':SYNC.state==='error'?"Couldn't sync. Will try again.":SYNC.at?'Synced across your devices.':'Signed in.';
+function setSync(s){SYNC.state=s;acctUI()}
+async function cloudPush(data){const uid=AUTH.user.id;await sb('/rest/v1/saves?on_conflict=user_id,game',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:uid,game:CLOUD.game,data})})}
+async function cloudSync(force){
+ if(!cloudOn()||!AUTH)return;
+ if(SYNC.busy){SYNC.again=true;return}
+ SYNC.busy=true;setSync('syncing');
+ try{
+  if(!AUTH.user||!AUTH.user.id){const u=await sb('/auth/v1/user');AUTH.user=userOf(u);authSave(AUTH)}
+  save(true);
+  if(force){await cloudPush(st)}
+  else{
+   const rows=await sb(`/rest/v1/saves?select=data&game=eq.${CLOUD.game}&user_id=eq.${AUTH.user.id}`);
+   const remote=rows&&rows[0]?rows[0].data:null;
+   if(remote&&!better(st,remote)){
+    const sec=Math.min(Math.max(0,(Date.now()-(remote.t||Date.now()))/1000),8*3600);
+    st=pad(remote);if(sec>30)away(sec);rebuild();save(true);toast('Loaded your progress from another device');
+   }else if(!remote||JSON.stringify(remote)!==JSON.stringify(st)){await cloudPush(st)}
+  }
+  SYNC.dirty=false;SYNC.at=Date.now();setSync('ok');
+ }catch(e){if(e.status===401){authSave(null);setSync('idle')}else setSync('error')}
+ finally{SYNC.busy=false;if(SYNC.again){SYNC.again=false;setTimeout(cloudSync,500)}}
+}
+function cloudFlush(){
+ if(!cloudOn()||!AUTH||!SYNC.dirty||!AUTH.user||AUTH.expires_at-30<Date.now()/1000)return;
+ try{save(true);fetch(CLOUD.url+'/rest/v1/saves?on_conflict=user_id,game',{method:'POST',keepalive:true,headers:{apikey:CLOUD.key,Authorization:'Bearer '+AUTH.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:AUTH.user.id,game:CLOUD.game,data:st})});SYNC.dirty=false}catch(e){}
+}
+async function cloudStart(){
+ acctUI();
+ if(!cloudOn())return;
+ authFromUrl();
+ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')cloudFlush();else cloudSync()});
+ addEventListener('pagehide',cloudFlush);
+ addEventListener('online',()=>cloudSync());
+ setInterval(()=>{if(SYNC.dirty)cloudSync()},60000);
+ if(AUTH_RECOVERY)newPasswordSheet();else if(AUTH_NOTE)toast(AUTH_NOTE);
+ if(AUTH)await cloudSync();
+ acctUI();
+}
+
+/* ---- screens ---- */
+const sheetEl=document.getElementById('sheet'),sheetBox=sheetEl.querySelector('.box');
+function showSheet(html){sheetBox.innerHTML=html;sheetEl.hidden=false}
+function closeSheet(){sheetEl.hidden=true;sheetBox.innerHTML=''}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function amsg(t,kind){const m=document.getElementById('amsg');if(m){m.textContent=t;m.className='amsg '+(kind||'')}}
+function signInSheet(mode){const up=mode==='up';
+ showSheet(`<h2>${up?'Create your account':'Sign in'}</h2><p class="sp">Your progress saves online and syncs across your devices. One Orchid-42 account works for all our games.</p>
+ <div class="authf"><div id="gbox" class="gbox"></div><div class="aor">or</div>
+ <input id="aemail" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="Email">
+ <input id="apw" type="password" autocomplete="${up?'new-password':'current-password'}" placeholder="${up?'Password (at least 6 characters)':'Password'}">
+ <p class="amsg" id="amsg"></p>
+ <button class="legit" data-act="${up?'asignup':'alogin'}">${up?'Create account':'Sign in'}</button>
+ ${up?'<button class="lnk" data-act="signin">I already have an account</button>':'<button class="lnk" data-act="signup">New here? Create an account</button><button class="lnk" data-act="aforgot">Forgot password?</button>'}</div>
+ <button class="ghost" data-act="close">Close</button>`);
+ mountGoogle()}
+function acctSheet(){showSheet(`<h2>Orchid-42 account</h2><p class="sp" style="overflow-wrap:anywhere;color:var(--gold)">${esc(AUTH?.user?.email||'')}</p><p class="sp">${syncText()}</p><p class="sp">Signing out keeps your progress on this device. Sign in again any time to sync.</p>
+ <button class="legit" data-act="syncnow">Sync now</button><button class="ghost" data-act="asignout">Sign out</button><button class="ghost" data-act="close">Close</button>`)}
+function newPasswordSheet(){showSheet(`<h2>Choose a new password</h2><div class="authf"><input id="apw" type="password" autocomplete="new-password" placeholder="New password (at least 6 characters)"><p class="amsg" id="amsg"></p><button class="legit" data-act="asetpw">Save password</button></div>`)}
+async function authAct(act,btn){
+ const email=(document.getElementById('aemail')?.value||'').trim(),pw=document.getElementById('apw')?.value||'';
+ const busy=on=>{if(btn)btn.disabled=on};
+ try{
+  if(act==='close'){closeSheet();return}
+  if(act==='signin'){signInSheet('in');return}
+  if(act==='signup'){signInSheet('up');return}
+  if(act==='agoogle'){authGoogle();return}
+  if(act==='syncnow'){closeSheet();await cloudSync();toast(SYNC.state==='ok'?'Synced':"Couldn't sync");return}
+  if(act==='alogin'||act==='asignup'){
+   if(!email||!pw){amsg('Enter your email and password.','err');return}
+   busy(true);amsg('One moment…');
+   if(act==='alogin')await authSignIn(email,pw);
+   else if(await authSignUp(email,pw)==='confirm'){amsg('Almost there: we sent you an email. Tap the link in it to finish.','ok');busy(false);return}
+   closeSheet();toast("You're signed in");await cloudSync();acctUI();return}
+  if(act==='aforgot'){if(!email){amsg('Type your email above, then tap Forgot password again.','err');return}busy(true);await authForgot(email);amsg('Check your email for a link to reset your password.','ok');busy(false);return}
+  if(act==='asetpw'){if(pw.length<6){amsg('Use a password with at least 6 characters.','err');return}busy(true);await authSetPassword(pw);closeSheet();toast("Password saved. You're signed in");await cloudSync();acctUI();return}
+  if(act==='asignout'){await authSignOut();closeSheet();acctUI();toast('Signed out. Your progress stays on this device');return}
+ }catch(e){busy(false);amsg(authError(e),'err')}
+}
+sheetEl.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b){authAct(b.dataset.act,b);return}if(e.target===sheetEl&&!AUTH_RECOVERY)closeSheet()});
+sheetEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.authf input')){e.preventDefault();const b=sheetEl.querySelector('.authf .legit');if(b)b.click()}});
+function acctUI(){
+ const on=cloudOn();
+ const hb=document.getElementById('acctb'),card=document.getElementById('acctcard');
+ hb.hidden=!on;card.hidden=!on;if(!on)return;
+ hb.textContent=AUTH?(SYNC.state==='error'?'Sync error':'Signed in'):'Sign in';
+ hb.classList.toggle('in',!!AUTH);hb.classList.toggle('err',SYNC.state==='error');
+ card.innerHTML=AUTH?`<div><b>${esc(AUTH.user?.email||'Orchid-42 account')}</b><span>${syncText()}</span></div><button class="ghost" data-a="acct">Account</button>`
+  :`<div><b>Play on all your devices</b><span>Sign in with your Orchid-42 account to keep your dispensary online and pick it up on your phone or computer.</span></div><button class="legit" data-a="signin">Sign in</button>`;
+}
+document.getElementById('acctb').addEventListener('click',()=>AUTH?acctSheet():signInSheet('in'));
+document.getElementById('acctcard').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;b.dataset.a==='acct'?acctSheet():signInSheet('in')});
+
+function markDirty(){if(AUTH)SYNC.dirty=true}
+/* ---------- loop ---------- */
+let last=performance.now(),acc=0,saveAcc=0;
+function frame(now){let dt=(now-last)/1000;last=now;
+ if(dt>2)away(dt);else tick(dt,pop);
+ bars();acc+=dt;saveAcc+=dt;if(acc>.1){acc=0;ui()}if(saveAcc>5){saveAcc=0;save()}
+ requestAnimationFrame(frame)}
+function load(){try{let raw=localStorage.getItem(SAVE);if(raw)return pad(JSON.parse(raw));raw=localStorage.getItem(SAVE1);if(raw)return pad(JSON.parse(raw))}catch(e){}return null}
+function save(q){st.t=Date.now();try{localStorage.setItem(SAVE,JSON.stringify(st))}catch(e){}if(!q)markDirty()}
+function start(data){
+ st=(data&&data.st)?pad(data.st):(load()||fresh());
+ rebuild();setDock();
+ const sec=Math.min((Date.now()-(st.t||Date.now()))/1000,8*3600);
+ if(!(data&&data.st)&&sec>30){const g=away(sec);if(g>0){$('#m-big').textContent='+'+money(g);$('#m-p').textContent=`You were gone ${hms(sec)}. Your dealers kept the lights on.`;$('#modal').hidden=false}}
+ ui(true);requestAnimationFrame(t=>{last=t;requestAnimationFrame(frame)});
+ cloudStart();
+}
+window.claude?.hot?.snapshot?.(()=>({st}));
+addEventListener('pagehide',save);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+})();
+</script>
+
+<script>
+if('serviceWorker' in navigator&&location.protocol==='https:'){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body></html>
