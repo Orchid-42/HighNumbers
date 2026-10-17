@@ -62,9 +62,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dock .toolbar{order:5;width:100%}
 .buffs{display:flex;gap:6px;flex-wrap:wrap;width:100%}
 .buffs:empty{display:none}
+.hintb{background:var(--gold);color:var(--hard);border-color:var(--hard);cursor:pointer}
 .buff{font-family:var(--display);font-size:16px;line-height:1.2;padding:1px 8px;border:1px solid var(--violet);color:var(--violet);font-variant-numeric:tabular-nums}
 .walkin{width:100%;display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--pink);padding:6px 10px;text-align:left;position:relative;overflow:hidden}
-.walkin canvas{width:40px;height:40px;flex:0 0 auto}
+.walkin canvas{width:48px;height:48px;flex:0 0 auto}
 .walkin .wt{flex:1;min-width:0}
 .walkin .wt b{display:block;font-family:var(--display);font-size:19px;font-weight:400;color:var(--pink);line-height:1.1}
 .walkin .wt span{font-size:11px;color:var(--smoke)}
@@ -115,7 +116,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .buy{background:var(--gold);color:var(--hard);border:1px solid var(--hard);padding:1px 10px;font-family:var(--display);font-size:18px;line-height:1.2;display:flex;gap:8px;align-items:baseline;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;width:100%;justify-content:space-between;text-align:left}
 .buy b{font-weight:400;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .buy span{flex:0 0 auto}
-.license .buy,.card .buy{width:auto;justify-content:flex-start}
+.license .buy,.card .buy,.urow .buy{width:auto;justify-content:flex-start;white-space:normal;flex-wrap:wrap;max-width:100%}
 .buy:disabled{background:var(--panel2);color:var(--muted);border-color:var(--line);cursor:not-allowed}
 .time{font-family:var(--display);font-size:18px;line-height:1;color:var(--smoke);font-variant-numeric:tabular-nums;margin-left:auto;flex:0 0 auto}
 .ms{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);flex-wrap:nowrap;white-space:nowrap;min-width:0;min-height:18px}
@@ -133,8 +134,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
 .card{background:var(--panel);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px}
 .card .head{display:flex;gap:10px;align-items:center}
-.card .face{width:62px;height:62px;flex:0 0 auto;background:var(--well);border:1px solid var(--line);display:grid;place-items:center}
-.card .face canvas{width:56px;height:56px}
+.card .face{width:74px;height:74px;flex:0 0 auto;background:var(--well);border:1px solid var(--line);display:grid;place-items:center}
+.card .face canvas{width:68px;height:68px}
 .card h3{font-family:var(--display);font-weight:400;font-size:22px;margin:0;line-height:1}
 .card .runs{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted);margin-top:4px}
 .card .runs canvas{width:24px;height:24px}
@@ -246,7 +247,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;max-width:70ch;margin
 
   <div class="dock" id="dock">
     <div class="dock-in">
-      <button class="walkin" id="walkin" hidden><canvas class="px" width="24" height="24"></canvas><div class="wt"><b></b><span></span></div><span class="go">Serve</span><i class="tl"></i></button>
+      <button class="walkin" id="walkin" hidden><canvas class="px" width="40" height="40"></canvas><div class="wt"><b></b><span></span></div><span class="go">Serve</span><i class="tl"></i></button>
       <div class="buffs" id="buffs"></div>
       <div class="register">
         <div class="lbl">Register</div>
@@ -289,7 +290,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;max-width:70ch;margin
         <div class="stat"><div class="k">Walk-ins served</div><div class="v" id="cl-walk">0</div></div>
         <div class="stat"><div class="k">Times gone legit</div><div class="v" id="cl-resets">0</div></div>
       </div>
-      <p>Going legit sells the business and starts you over with one jar of Schwag. Licenses, dealers and upgrades reset. You keep your Clout, and every point adds 2% to all profits forever. Clout comes from lifetime sales, so the bigger you get, the more a fresh start pays.</p>
+      <p>Going legit sells the business and starts you over with one jar of Schwag. Licenses, dealers and upgrades reset. You keep your Clout, and every point adds 2% to all profits forever. Clout comes from what you sell this run, so the further you push a run, the more it pays. Global upgrades and licenses cost more after each fresh start.</p>
       <button class="legit" id="legit">Go legit</button>
       <button class="ghost" id="wipe">Erase save</button>
     </div>
@@ -613,7 +614,7 @@ addDept(3,1e29,[
  {name:'Gold Leaf Cigar',art:'cigar',src:'Golden Godbud',anim:'gold',d:{name:'Baron Von Blaze',bio:'Arrives by helicopter. Leaves by limousine.',look:{skin:'#f0c8a8',hair:'short',hc:'#e8e8f0',glasses:'round',gc:'#d4a020',beard:'stache',shirt:'#5a2e86'}}},
 ]);
 P.forEach(p=>{p.src=p.src?P.findIndex(q=>q.name===p.src):-1});
-/*@DEALERS*/const DEALER_LOOKS=[{"name":"Couch Kevin","bio":"Hasn't left the sofa since 2019. Sells by yelling out the window.","look":{"beard":"stubble","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#16100c","glasses":"none","hair":"messy","hairC":"#5a3a22","hat":"none","hatC":"#c42a3a","mouth":"smile","mouthAcc":"joint","neck":"none","shirt":"tee","shirt2":"#f1e8db","shirtC":"#8b8b8b","skin":"#e8b892"}},{"name":"Dale from the Van","bio":"Delivers from a '78 camper with a wizard mural on the side.","look":{"body":"masc","skin":"#d9a37c","hair":"long","hairC":"#c9a050","beard":"mustache","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"headband","hatC":"#e05a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#4a7ab0","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Sunny Marisol","bio":"Yoga teacher by day. Free affirmation with every eighth.","look":{"body":"fem","skin":"#b47a52","hair":"afro","hairC":"#2a1a14","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"headband","hatC":"#ffd24a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#e86a8a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Jeffrey Purpleman","bio":"Fluent in seven languages, all of them slang, yo.","look":{"beard":"none","body":"masc","ear":"none","eyeC":"#2f6b8a","eyes":"sleepy","glassC":"#16100c","glasses":"none","hair":"bald","hairC":"#6b3e1e","hat":"beanie","hatC":"#16100c","mouth":"smirk","mouthAcc":"joint","neck":"none","shirt":"hoodie","shirt2":"#16100c","shirtC":"#f5b942","skin":"#efc09c"}},{"name":"High Zenberg","bio":"Tenured, tweed, deeply unbothered. Grades customers on vibes.","look":{"beard":"goatee","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"normal","glassC":"#16100c","glasses":"shades","hair":"bald","hairC":"#6b3e1e","hat":"bucket","hatC":"#16100c","mouth":"neutral","mouthAcc":"none","neck":"none","shirt":"hoodie","shirt2":"#16100c","shirtC":"#3a3a44","skin":"#efc09c"}},{"name":"Abuela Rosa","bio":"Keeps the tightest ledger in town. Pays bonuses in tamales.","look":{"body":"fem","skin":"#c48a62","hair":"bun","hairC":"#d4d0cc","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"round","glassC":"#7a4a8a","shirt":"tee","shirtC":"#3a7a5a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Captain Cottonmouth","bio":"Ex-surfer, current philosopher, permanently thirsty.","look":{"body":"masc","skin":"#e0a070","hair":"long","hairC":"#e8cf7a","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"bucket","hatC":"#e86a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#3ab0c0","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Snackmaster Sid","bio":"Spends 40% of profits on gas-station snacks. Still beats quota.","look":{"body":"masc","skin":"#f2c4a0","hair":"short","hairC":"#3a2414","beard":"stubble","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"beanie","hatC":"#6a3a9a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#e08a2a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Obi-Wan Cannabis","bio":"I have the high ground.","look":{"beard":"full","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#5ab4c2","glasses":"none","hair":"sidepart","hairC":"#c9772e","hat":"none","hatC":"#c42a3a","mouth":"smirk","mouthAcc":"none","neck":"none","shirt":"robe","shirt2":"#7a4a2a","shirtC":"#c8a070","skin":"#e6c0a0"}},{"name":"Tyrion Lannistoner","bio":"A Lannistoner always... do something.","look":{"beard":"goatee","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#d4a020","glasses":"none","hair":"messy","hairC":"#e0b860","hat":"none","hatC":"#c42a3a","mouth":"smirk","mouthAcc":"none","neck":"chain","shirt":"robe","shirt2":"#16100c","shirtC":"#c42a3a","skin":"#efc09c"}},{"name":"Grinder Gus","bio":"Has saved every grain of kief since 2003. Knows them by name.","look":{"body":"masc","skin":"#d8a882","hair":"short","hairC":"#3a2a1a","beard":"full","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#8a6a3a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Ice Bath Ingrid","bio":"Washes hash in ice water. Swims in it on weekends.","look":{"body":"fem","skin":"#f4d2bc","hair":"long","hairC":"#f0e0b0","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"beanie","hatC":"#5ab4c2","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#e8ecf4","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Astro Nomi","bio":"Calls every customer 'cadet'. Wears the helmet indoors.","look":{"body":"fem","skin":"#c08a62","hair":"afro","hairC":"#1a1210","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"shades","glassC":"#b896ff","shirt":"tee","shirtC":"#e8e8f0","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Himalaya Hank","bio":"Hand-rubbed a mountain of charas. Has the palms to prove it.","look":{"body":"masc","skin":"#a8724c","hair":"long","hairC":"#3a2a20","beard":"full","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"headband","hatC":"#e86a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#c8504a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Shard Sharon","bio":"Breaks things for a living. Only on purpose.","look":{"body":"fem","skin":"#e8b892","hair":"short","hairC":"#e84a8a","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"shades","glassC":"#ffc65a","shirt":"tee","shirtC":"#2a2a2a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Press Pete","bio":"Owns three rosin presses and exactly one shirt.","look":{"body":"masc","skin":"#f0c8a8","hair":"short","hairC":"#3a2414","beard":"stubble","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"capback","hatC":"#3a7ab0","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#f5b942","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Auntie Bev","bio":"Bake-sale legend. Banned from four bake sales.","look":{"body":"fem","skin":"#8a5a3a","hair":"bun","hairC":"#d4d0cc","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"round","glassC":"#f7bcd9","shirt":"tee","shirtC":"#e86a8a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Gummy Gaby","bio":"Color-codes everything, including you.","look":{"body":"fem","skin":"#f2c4a0","hair":"long","hairC":"#b896ff","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"headband","hatC":"#f2c230","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#5ab4c2","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Crumbs McGee","bio":"Leaves a trail wherever he goes. Easy to find.","look":{"body":"masc","skin":"#e8b892","hair":"messy","hairC":"#c86a2a","beard":"stubble","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#7a4a2a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Chocolatier Jules","bio":"Trained in Belgium. Will mention it.","look":{"body":"masc","skin":"#c48a62","hair":"short","hairC":"#2a1a14","beard":"mustache","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#f1e8db","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Fizz Washington","bio":"Shakes every can before handing it over. Every single time.","look":{"body":"masc","skin":"#6a4228","hair":"short","hairC":"#3a2414","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"capback","hatC":"#c42a3a","glasses":"shades","glassC":"#3a3a44","shirt":"tee","shirtC":"#c42a3a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Chef Orbit","bio":"Five-star kitchen, zero-gravity attitude.","look":{"body":"masc","skin":"#f0c8a8","hair":"long","hairC":"#8a5a2a","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"bucket","hatC":"#f1e8db","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#f1e8db","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Indiana Joints","bio":"I don't know, I'm making this up as I go.","look":{"beard":"stubble","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#16100c","glasses":"none","hair":"buzz","hairC":"#6b3e1e","hat":"bucket","hatC":"#16100c","mouth":"smirk","mouthAcc":"none","neck":"none","shirt":"jacket","shirt2":"#c8a070","shirtC":"#7a4a2a","skin":"#d9a37c"}},{"name":"Wrapper Ray","bio":"Has opinions about leaf wraps. Many opinions.","look":{"body":"masc","skin":"#8a5a3a","hair":"short","hairC":"#1a1210","beard":"mustache","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"beanie","hatC":"#e8a030","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#3a3a3a","shirt2":"#f1e8db","mouthAcc":"joint","neck":"none","ear":"none"}},{"name":"Cloud Chaser Kai","bio":"Blows smoke rings shaped like other smoke rings.","look":{"body":"masc","skin":"#e6c0a0","hair":"short","hairC":"#5ab4c2","beard":"none","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"shades","glassC":"#f7bcd9","shirt":"tee","shirtC":"#1a1a2a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Twax Max","bio":"Coats everything in kief. Even his toast.","look":{"body":"masc","skin":"#f2c4a0","hair":"messy","hairC":"#f0d080","beard":"stubble","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#e8b030","shirt2":"#f1e8db","mouthAcc":"joint","neck":"none","ear":"none"}},{"name":"Bongledore","bio":"Vingardium leviosa indeed.","look":{"beard":"wizard","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"red","glassC":"#8b8b8b","glasses":"round","hair":"long","hairC":"#d8d4d0","hat":"none","hatC":"#c42a3a","mouth":"smile","mouthAcc":"none","neck":"none","shirt":"robe","shirt2":"#f1e8db","shirtC":"#3a3a44","skin":"#c48a62"}},{"name":"Baron Von Blaze","bio":"Arrives by helicopter. Leaves by limousine.","look":{"body":"masc","skin":"#f0c8a8","hair":"short","hairC":"#e8e8f0","beard":"mustache","eyes":"sleepy","eyeC":"#2a1714","mouth":"smile","hat":"none","hatC":"#c42a3a","glasses":"round","glassC":"#d4a020","shirt":"tee","shirtC":"#5a2e86","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}}];/*@END_DEALERS*/
+/*@DEALERS*/const DEALER_LOOKS=[{"name":"Couch Kevin","bio":"Hasn't left the sofa since 2019. Sells by yelling out the window.","look":{"beard":"stubble","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#16100c","glasses":"none","hair":"messy","hairC":"#5a3a22","hat":"none","hatC":"#c42a3a","mouth":"smile","mouthAcc":"joint","neck":"none","shirt":"tee","shirt2":"#f1e8db","shirtC":"#8b8b8b","skin":"#e8b892"}},{"name":"Dale from the Van","bio":"Delivers from a '78 camper with a wizard mural on the side.","look":{"body":"masc","skin":"#e4ad85","hair":"long","hairC":"#e0b860","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"round","mouth":"smile","marks":"none","beard":"handlebar","hat":"headband","hatC":"#e86a3a","glasses":"none","glassC":"#16100c","shirt":"hawaiian","shirtC":"#3a6ab0","shirt2":"#f2e05a","mouthAcc":"none","neck":"beads","ear":"none"}},{"name":"Sunny Marisol","bio":"Yoga teacher by day. Free affirmation with every eighth.","look":{"body":"fem","skin":"#94603c","hair":"afro","hairC":"#16100c","brows":"normal","eyes":"happy","eyeC":"#3a2414","nose":"button","mouth":"laugh","marks":"blush","beard":"none","hat":"headband","hatC":"#f2e05a","glasses":"none","glassC":"#16100c","shirt":"tiedye","shirtC":"#3a6ab0","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"hoop"}},{"name":"Jeffrey Purpleman","bio":"Fluent in seven languages, all of them slang, yo.","look":{"beard":"none","body":"masc","ear":"none","eyeC":"#2f6b8a","eyes":"sleepy","glassC":"#16100c","glasses":"none","hair":"bald","hairC":"#6b3e1e","hat":"beanie","hatC":"#16100c","mouth":"smirk","mouthAcc":"joint","neck":"none","shirt":"hoodie","shirt2":"#16100c","shirtC":"#f5b942","skin":"#efc09c"}},{"name":"High Zenberg","bio":"Tenured, tweed, deeply unbothered. Grades customers on vibes.","look":{"beard":"goatee","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"normal","glassC":"#16100c","glasses":"shades","hair":"bald","hairC":"#6b3e1e","hat":"bucket","hatC":"#16100c","mouth":"neutral","mouthAcc":"none","neck":"none","shirt":"hoodie","shirt2":"#16100c","shirtC":"#3a3a44","skin":"#efc09c"}},{"name":"Abuela Rosa","bio":"Keeps the tightest ledger in town. Pays bonuses in tamales.","look":{"body":"fem","skin":"#b4774e","hair":"bun","hairC":"#a8a4a0","brows":"normal","eyes":"happy","eyeC":"#3a2414","nose":"button","mouth":"smile","marks":"mole","beard":"none","hat":"none","hatC":"#c42a3a","glasses":"round","glassC":"#6a3aa8","shirt":"apron","shirtC":"#3a7a5a","shirt2":"#c42a3a","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Captain Cottonmouth","bio":"Ex-surfer, current philosopher, permanently thirsty.","look":{"body":"masc","skin":"#e4ad85","hair":"long","hairC":"#e0b860","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"o","marks":"freckles","beard":"none","hat":"bucket","hatC":"#e86a3a","glasses":"none","glassC":"#16100c","shirt":"tank","shirtC":"#5ab4c2","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Snackmaster Sid","bio":"Spends 40% of profits on gas-station snacks. Still beats quota.","look":{"body":"masc","skin":"#f1c6a4","hair":"short","hairC":"#3a2414","brows":"normal","eyes":"red","eyeC":"#3a2414","nose":"button","mouth":"grin","marks":"none","beard":"stubble","hat":"beanie","hatC":"#6a3aa8","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#e86a3a","shirt2":"#f1e8db","mouthAcc":"lollipop","neck":"none","ear":"none"}},{"name":"Obi-Wan Cannabis","bio":"I have the high ground.","look":{"beard":"full","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#5ab4c2","glasses":"none","hair":"sidepart","hairC":"#c9772e","hat":"none","hatC":"#c42a3a","mouth":"smirk","mouthAcc":"none","neck":"none","shirt":"robe","shirt2":"#7a4a2a","shirtC":"#c8a070","skin":"#e6c0a0"}},{"name":"Tyrion Lannistoner","bio":"A Lannistoner always... does something.","look":{"beard":"goatee","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#d4a020","glasses":"none","hair":"messy","hairC":"#e0b860","hat":"none","hatC":"#c42a3a","mouth":"smirk","mouthAcc":"none","neck":"chain","shirt":"robe","shirt2":"#16100c","shirtC":"#c42a3a","skin":"#efc09c"}},{"name":"Grinder Gus","bio":"Has saved every grain of kief since 2003. Knows them by name.","look":{"body":"masc","skin":"#cf9268","hair":"short","hairC":"#3a2414","brows":"thick","eyes":"sleepy","eyeC":"#3a2414","nose":"wide","mouth":"smile","marks":"none","beard":"full","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"apron","shirtC":"#7a4a2a","shirt2":"#c8a070","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Ice Bath Ingrid","bio":"Washes hash in ice water. Swims in it on weekends.","look":{"body":"fem","skin":"#f8dcc6","hair":"long","hairC":"#f2e2a8","brows":"normal","eyes":"wide","eyeC":"#2f6b8a","nose":"button","mouth":"smile","marks":"blush","beard":"none","hat":"beanie","hatC":"#5ab4c2","glasses":"none","glassC":"#16100c","shirt":"hoodie","shirtC":"#f1e8db","shirt2":"#5ab4c2","mouthAcc":"none","neck":"scarf","ear":"none"}},{"name":"Astro Nomi","bio":"Calls every customer 'cadet'. Wears the helmet indoors.","look":{"body":"fem","skin":"#b4774e","hair":"afro","hairC":"#16100c","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"smile","marks":"none","beard":"none","hat":"none","hatC":"#c42a3a","glasses":"visor","glassC":"#b896ff","shirt":"jacket","shirtC":"#f1e8db","shirt2":"#8b8b8b","mouthAcc":"none","neck":"none","ear":"stud"}},{"name":"Himalaya Hank","bio":"Hand-rubbed a mountain of charas. Has the palms to prove it.","look":{"body":"masc","skin":"#94603c","hair":"dreads","hairC":"#3a2414","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"smile","marks":"none","beard":"full","hat":"headband","hatC":"#e86a3a","glasses":"none","glassC":"#16100c","shirt":"robe","shirtC":"#c42a3a","shirt2":"#e86a3a","mouthAcc":"none","neck":"beads","ear":"none"}},{"name":"Shard Sharon","bio":"Breaks things for a living. Only on purpose.","look":{"body":"fem","skin":"#e4ad85","hair":"mohawk","hairC":"#e84a8a","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"smirk","marks":"scar","beard":"none","hat":"none","hatC":"#c42a3a","glasses":"shades","glassC":"#f5b942","shirt":"jacket","shirtC":"#16100c","shirt2":"#3a3a44","mouthAcc":"none","neck":"none","ear":"hoop"}},{"name":"Press Pete","bio":"Owns three rosin presses and exactly one shirt.","look":{"body":"masc","skin":"#f1c6a4","hair":"short","hairC":"#6b3e1e","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"grin","marks":"bandaid","beard":"stubble","hat":"cap","hatC":"#3a6ab0","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#f5b942","shirt2":"#f1e8db","mouthAcc":"toothpick","neck":"none","ear":"none"}},{"name":"Auntie Bev","bio":"Bake-sale legend. Banned from four bake sales.","look":{"body":"fem","skin":"#94603c","hair":"bun","hairC":"#a8a4a0","brows":"normal","eyes":"happy","eyeC":"#3a2414","nose":"button","mouth":"laugh","marks":"blush","beard":"none","hat":"none","hatC":"#c42a3a","glasses":"round","glassC":"#e86a8a","shirt":"apron","shirtC":"#e86a8a","shirt2":"#f5b942","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Gummy Gaby","bio":"Color-codes everything, including you.","look":{"body":"fem","skin":"#f1c6a4","hair":"bob","hairC":"#b896ff","brows":"normal","eyes":"happy","eyeC":"#3a2414","nose":"button","mouth":"smile","marks":"freckles","beard":"none","hat":"headband","hatC":"#f2e05a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#5ab4c2","shirt2":"#f1e8db","mouthAcc":"lollipop","neck":"none","ear":"none"}},{"name":"Crumbs McGee","bio":"Leaves a trail wherever he goes. Easy to find.","look":{"body":"masc","skin":"#f8dcc6","hair":"messy","hairC":"#c9772e","brows":"normal","eyes":"wide","eyeC":"#3a2414","nose":"button","mouth":"o","marks":"freckles","beard":"stubble","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"hoodie","shirtC":"#7a4a2a","shirt2":"#f1e8db","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Chocolatier Jules","bio":"Trained in Belgium. Will mention it.","look":{"body":"masc","skin":"#cf9268","hair":"sidepart","hairC":"#16100c","brows":"raised","eyes":"normal","eyeC":"#3a2414","nose":"button","mouth":"smirk","marks":"none","beard":"handlebar","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"suit","shirtC":"#7a4a2a","shirt2":"#d4a020","mouthAcc":"none","neck":"bowtie","ear":"none"}},{"name":"Fizz Washington","bio":"Shakes every can before handing it over. Every single time.","look":{"body":"masc","skin":"#523019","hair":"short","hairC":"#16100c","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"grin","marks":"none","beard":"none","hat":"cap","hatC":"#c42a3a","glasses":"shades","glassC":"#c42a3a","shirt":"jersey","shirtC":"#c42a3a","shirt2":"#f1e8db","mouthAcc":"none","neck":"chain","ear":"none"}},{"name":"Chef Orbit","bio":"Five-star kitchen, zero-gravity attitude.","look":{"body":"masc","skin":"#f1c6a4","hair":"long","hairC":"#6b3e1e","brows":"normal","eyes":"normal","eyeC":"#3a2414","nose":"round","mouth":"smile","marks":"none","beard":"mustache","hat":"chef","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"apron","shirtC":"#f1e8db","shirt2":"#e86a3a","mouthAcc":"none","neck":"none","ear":"none"}},{"name":"Indiana Joints","bio":"I don't know, I'm making this up as I go.","look":{"beard":"stubble","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"sleepy","glassC":"#16100c","glasses":"none","hair":"buzz","hairC":"#6b3e1e","hat":"bucket","hatC":"#16100c","mouth":"smirk","mouthAcc":"none","neck":"none","shirt":"jacket","shirt2":"#c8a070","shirtC":"#7a4a2a","skin":"#d9a37c"}},{"name":"Wrapper Ray","bio":"Has opinions about leaf wraps. Many opinions.","look":{"body":"masc","skin":"#744528","hair":"short","hairC":"#16100c","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"smile","marks":"none","beard":"mustache","hat":"beanie","hatC":"#d4a020","glasses":"none","glassC":"#16100c","shirt":"hoodie","shirtC":"#3a3a44","shirt2":"#e86a3a","mouthAcc":"blunt","neck":"none","ear":"none"}},{"name":"Cloud Chaser Kai","bio":"Blows smoke rings shaped like other smoke rings.","look":{"body":"masc","skin":"#e4ad85","hair":"short","hairC":"#5ab4c2","brows":"normal","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"o","marks":"none","beard":"none","hat":"none","hatC":"#5ab4c2","glasses":"shades","glassC":"#e86a8a","shirt":"jacket","shirtC":"#16100c","shirt2":"#2a2a6a","mouthAcc":"none","neck":"none","ear":"headphones"}},{"name":"Twax Max","bio":"Coats everything in kief. Even his toast.","look":{"body":"masc","skin":"#f1c6a4","hair":"spiky","hairC":"#e0b860","brows":"normal","eyes":"red","eyeC":"#3a2414","nose":"button","mouth":"grin","marks":"none","beard":"stubble","hat":"none","hatC":"#c42a3a","glasses":"none","glassC":"#16100c","shirt":"tee","shirtC":"#d4a020","shirt2":"#f1e8db","mouthAcc":"joint","neck":"none","ear":"none"}},{"name":"Bongledore","bio":"Vingardium leviosa indeed.","look":{"beard":"wizard","body":"masc","ear":"none","eyeC":"#2a1714","eyes":"red","glassC":"#8b8b8b","glasses":"round","hair":"long","hairC":"#d8d4d0","hat":"none","hatC":"#c42a3a","mouth":"smile","mouthAcc":"none","neck":"none","shirt":"robe","shirt2":"#f1e8db","shirtC":"#3a3a44","skin":"#c48a62"}},{"name":"Baron Von Blaze","bio":"Arrives by helicopter. Leaves by limousine.","look":{"body":"masc","skin":"#f1c6a4","hair":"short","hairC":"#f4f4f8","brows":"raised","eyes":"sleepy","eyeC":"#3a2414","nose":"button","mouth":"smirk","marks":"none","beard":"handlebar","hat":"tophat","hatC":"#16100c","glasses":"monocle","glassC":"#16100c","shirt":"suit","shirtC":"#6a3aa8","shirt2":"#f5b942","mouthAcc":"blunt","neck":"none","ear":"none"}}];/*@END_DEALERS*/
 P.forEach((p,i)=>{const o=DEALER_LOOKS[i];if(o){p.d.name=o.name;p.d.bio=o.bio;p.d.look=o.look}});
 const N=P.length,ND=DEPTS.length;
 const DIDX=DEPTS.map((_,d)=>P.map((p,i)=>p.dept===d?i:-1).filter(i=>i>=0));
@@ -642,19 +643,24 @@ function recalc(){UPM=Array(N).fill(1);DUP=Array(ND).fill(1);GUP=1;for(const id 
 const speed=i=>{let k=0;for(const m of MILES)if(st.owned[i]>=m)k++;return 2**k};
 function buff(kind,d){let m=1;for(const b of st.buffs)if(b.kind===kind&&b.until>st.clock&&(b.dept==null||b.dept===d))m*=b.x;return m}
 const cyc=i=>P[i].time/speed(i)/buff('speed',P[i].dept);
-const syn=i=>P[i].src>=0?1+.005*st.owned[P[i].src]:1;
+const syn=i=>P[i].src>=0?1+.01*st.owned[P[i].src]:1;
 const menuLevel=d=>{let mn=Infinity;for(const i of DIDX[d])mn=Math.min(mn,st.owned[i]);let k=0;for(const m of MENU)if(mn>=m)k++;return {k,mn,next:MENU[k]}};
-const menuMult=d=>2**menuLevel(d).k;
+const menuMult=d=>1.5**menuLevel(d).k;
+const PACE=.7; /* overall income pace */
+const SCALE_UP=()=>Math.pow(3,Math.min(st.resets||0,30)),SCALE_LIC=()=>Math.pow(2,Math.min(st.resets||0,30));
+const licCost=d=>DEPTS[d].license*SCALE_LIC();
+const upCost=u=>u.cost*(u.target<0?SCALE_UP():1);
 const cmult=()=>1+.02*st.clout;
 const mult=(i,noBuff)=>UPM[i]*DUP[P[i].dept]*GUP*syn(i)*menuMult(P[i].dept)*cmult()*(noBuff?1:buff('mult',P[i].dept));
-const rev=(i,noBuff)=>P[i].rev*Math.max(st.owned[i],1)*mult(i,noBuff);
+const rev=(i,noBuff)=>P[i].rev*PACE*Math.max(st.owned[i],1)*mult(i,noBuff);
 const costN=(i,n)=>{const s=P[i];return s.cost*s.coef**st.owned[i]*(s.coef**n-1)/(s.coef-1)};
 const maxN=i=>{const s=P[i];const b=s.cost*s.coef**st.owned[i];return Math.max(0,Math.floor(Math.log(st.cash*(s.coef-1)/b+1)/Math.log(s.coef)))};
 const nextMile=o=>MILES.find(m=>m>o)||(Math.floor(o/100)+1)*100;
 const buyN=i=>st.mode==='max'?Math.max(1,maxN(i)):st.mode==='next'?(st.owned[i]?nextMile(st.owned[i])-st.owned[i]:1):+st.mode;
 const perSec=noBuff=>{let r=0;for(let i=0;i<N;i++)if(st.dealer[i]&&st.owned[i])r+=rev(i,noBuff)/(noBuff?P[i].time/speed(i):cyc(i));return r};
-const cloutTotal=()=>Math.floor(150*Math.sqrt(st.life/1e15));
-const cloutGain=()=>Math.max(0,cloutTotal()-st.clout);
+/* Clout from this run's sales, cube root: steady 2-3x steps instead of a runaway */
+const cloutGain=()=>Math.max(0,Math.floor(150*Math.cbrt((st.run||0)/1e15)));
+const nextCloutAt=()=>((cloutGain()+1)/150)**3*1e15;
 function earn(x){st.cash+=x;st.run+=x;st.life+=x}
 const bestHarvest=()=>{let b=0;for(let i=0;i<N;i++)if(st.owned[i])b=Math.max(b,rev(i,true));return b};
 
@@ -695,180 +701,202 @@ function hms(s){if(s<1)return s.toFixed(2)+'s';s=Math.ceil(s);const h=Math.floor
 /*ENDCORE*/
 
 if(typeof document==='undefined')return;
-/* ===== High Numbers portrait renderer: 24x24 pixel characters ===== */
-const PN=24;
+/* ===== High Numbers portrait renderer: 40x40 pixel characters ===== */
+const PN=40;
 function pShade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=f<0?0:255,p=Math.abs(f);r=Math.round((t-r)*p+r);g=Math.round((t-g)*p+g);b=Math.round((t-b)*p+b);return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1)}
+function pMix(a,b,t){const A=parseInt(a.slice(1),16),B=parseInt(b.slice(1),16);const r=Math.round((A>>16)*(1-t)+(B>>16)*t),g=Math.round((A>>8&255)*(1-t)+(B>>8&255)*t),c=Math.round((A&255)*(1-t)+(B&255)*t);return '#'+((1<<24)+(r<<16)+(g<<8)+c).toString(16).slice(1)}
 const POPT={
  body:[['masc','Masculine'],['fem','Feminine']],
- skin:['#f6d5bd','#efc09c','#e0a87e','#c98d62','#ad7149','#8c5634','#6b3f25','#4a2a18'],
+ skin:['#f8dcc6','#f1c6a4','#e4ad85','#cf9268','#b4774e','#94603c','#744528','#523019','#3a2212'],
  hair:[['bald','Bald'],['buzz','Buzz cut'],['short','Short'],['sidepart','Side part'],['messy','Messy'],['spiky','Spiky'],['curly','Curly'],['mohawk','Mohawk'],['bob','Bob'],['long','Long'],['ponytail','Ponytail'],['bun','Bun'],['afro','Afro'],['dreads','Dreads'],['mullet','Mullet']],
- hairC:['#16100c','#3a2414','#6b3e1e','#9a5a2a','#c9772e','#e0b860','#f2e2a8','#d8d4d0','#f4f4f8','#e84a8a','#b896ff','#5ab4c2','#3e8a34'],
- beard:[['none','None'],['stubble','Stubble'],['mustache','Mustache'],['goatee','Goatee'],['soulpatch','Soul patch'],['chinstrap','Chinstrap'],['full','Full beard'],['wizard','Wizard beard']],
+ hairC:['#16100c','#3a2414','#6b3e1e','#9a5a2a','#c9772e','#e0b860','#f2e2a8','#a8a4a0','#f4f4f8','#e84a8a','#b896ff','#5ab4c2','#3e8a34'],
+ brows:[['normal','Normal'],['thick','Thick'],['thin','Thin'],['raised','Raised'],['angry','Grumpy'],['unibrow','Unibrow']],
  eyes:[['sleepy','Sleepy'],['red','Red-eyed'],['normal','Normal'],['wide','Wide'],['happy','Happy'],['wink','Wink']],
- eyeC:['#2a1714','#5a3a1e','#2f6b8a','#3e7a3a','#7a4ab0','#6a6a6a'],
+ eyeC:['#3a2414','#6b4424','#2f6b8a','#3e7a3a','#7a4ab0','#6a7078','#b8862a'],
+ nose:[['button','Button'],['round','Round'],['long','Long'],['wide','Wide']],
  mouth:[['smile','Smile'],['grin','Grin'],['neutral','Neutral'],['laugh','Laugh'],['smirk','Smirk'],['o','Oh']],
+ marks:[['none','None'],['freckles','Freckles'],['blush','Blush'],['mole','Mole'],['scar','Scar'],['bandaid','Bandage'],['tattoo','Leaf tattoo'],['eyeliner','Eyeliner']],
+ beard:[['none','None'],['stubble','Stubble'],['mustache','Mustache'],['handlebar','Handlebar'],['goatee','Goatee'],['soulpatch','Soul patch'],['chinstrap','Chinstrap'],['full','Full beard'],['wizard','Wizard beard']],
  hat:[['none','None'],['beanie','Beanie'],['cap','Cap'],['capback','Backwards cap'],['bucket','Bucket hat'],['headband','Headband'],['bandana','Bandana'],['tam','Knit tam'],['fedora','Fedora'],['tophat','Top hat'],['chef','Chef hat'],['crown','Crown']],
  glasses:[['none','None'],['round','Round'],['square','Square'],['shades','Shades'],['aviator','Aviators'],['heart','Hearts'],['visor','Visor'],['monocle','Monocle']],
  shirt:[['tee','T-shirt'],['hoodie','Hoodie'],['tank','Tank top'],['hawaiian','Hawaiian'],['tiedye','Tie-dye'],['jacket','Jacket'],['suit','Suit'],['jersey','Jersey'],['robe','Robe'],['apron','Apron']],
  mouthAcc:[['none','None'],['joint','Joint'],['blunt','Blunt'],['pipe','Pipe'],['lollipop','Lollipop'],['toothpick','Toothpick']],
  neck:[['none','None'],['chain','Gold chain'],['leaf','Leaf pendant'],['scarf','Scarf'],['bowtie','Bow tie'],['beads','Beads']],
  ear:[['none','None'],['stud','Stud'],['hoop','Hoop'],['headphones','Headphones']],
- colors:['#f1e8db','#16100c','#3a3a44','#8b8b8b','#c42a3a','#e86a3a','#f5b942','#f2e05a','#3e8a34','#3a7a5a','#5ab4c2','#3a6ab0','#2a2a6a','#6a3aa8','#b896ff','#e86a8a','#f7bcd9','#7a4a2a','#c8a070','#d4a020'],
- bg:['#2b2235','#3a2a52','#22303a','#2e3a24','#3a2424','#3a3424','#16111b']
+ colors:['#f1e8db','#16100c','#3a3a44','#8b8b8b','#c42a3a','#e86a3a','#f5b942','#f2e05a','#3e8a34','#3a7a5a','#5ab4c2','#3a6ab0','#2a2a6a','#6a3aa8','#b896ff','#e86a8a','#f7bcd9','#7a4a2a','#c8a070','#d4a020']
 };
-const PDEF={body:'masc',skin:'#e0a87e',hair:'short',hairC:'#3a2414',beard:'none',eyes:'sleepy',eyeC:'#2a1714',mouth:'smile',hat:'none',hatC:'#c42a3a',glasses:'none',glassC:'#16100c',shirt:'tee',shirtC:'#3a6ab0',shirt2:'#f1e8db',mouthAcc:'none',neck:'none',ear:'none',bg:'#2b2235'};
+const PDEF={body:'masc',skin:'#e4ad85',hair:'short',hairC:'#3a2414',brows:'normal',eyes:'sleepy',eyeC:'#3a2414',nose:'button',mouth:'smile',marks:'none',beard:'none',hat:'none',hatC:'#c42a3a',glasses:'none',glassC:'#16100c',shirt:'tee',shirtC:'#3a6ab0',shirt2:'#f1e8db',mouthAcc:'none',neck:'none',ear:'none'};
 function portrait(Lin){
- const L={...PDEF,...Lin};const N=PN,g=new Array(N*N).fill(null),CX=11.5,fem=L.body==='fem';
+ const L={...PDEF,...Lin};const N=PN,CX=19.5,fem=L.body==='fem';const g=new Array(N*N).fill(null);
  let layer='';const hm=new Uint8Array(N*N);
  const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(c&&x>=0&&y>=0&&x<N&&y<N){g[y*N+x]=c;hm[y*N+x]=layer==='hair'?1:0}};
  const get=(x,y)=>(x<0||y<0||x>=N||y>=N)?null:g[y*N+x];
  const ell=(cx,cy,rx,ry,f,clip)=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(((x+.5-cx)/rx)**2+((y+.5-cy)/ry)**2<=1&&(!clip||clip(x,y)))set(x,y,typeof f==='function'?f(x,y):f)};
  const rect=(x0,y0,x1,y1,f)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,typeof f==='function'?f(x,y):f)};
- const mir=(x,y,c)=>{set(x,y,c);set(23-x,y,c)};
- const sk=L.skin,skD=pShade(sk,-.18),skDD=pShade(sk,-.36),skL=pShade(sk,.16);
- const hc=L.hairC,hcD=pShade(hc,hc==='#16100c'?.12:-.3),hcL=pShade(hc,.24);
- const hairF=(x,y)=>x>=CX+3.5?hcD:((y<=5&&x<CX&&(x+y)%3===0)?hcL:hc);
- const cc=L.shirtC,ccD=pShade(cc,-.28),ccL=pShade(cc,.2),c2=L.shirt2;
- const RX=fem?5.35:5.7;
- const inHead=(x,y)=>{const nx=(x+.5-CX)/RX,ny=(y+.5-11.4)/6.2;if(ny<0)return nx*nx+ny*ny<=1;return Math.pow(Math.abs(nx),fem?2.1:2.7)+ny*ny*(fem?1.06:1)<=1};
- const shirtIn=(x,y)=>y===19?(x>=6&&x<=17):y===20?(x>=4&&x<=19):y>=21?(x>=3&&x<=20):false;
+ const mir=(x,y,c)=>{set(x,y,c);set(39-x,y,c)};
+ const line=(x0,y0,x1,y1,c)=>{const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0))||1;for(let k=0;k<=n;k++)set(x0+(x1-x0)*k/n,y0+(y1-y0)*k/n,c)};
+ const pts=(arr,c)=>arr.forEach(([x,y])=>set(x,y,c));
+ const sk=L.skin,skD=pShade(sk,-.14),skDD=pShade(sk,-.3),skL=pShade(sk,.13),blush=pMix(sk,'#e85a6a',.3);
+ const hc=L.hairC,dark=hc==='#16100c',hcD=dark?'#2c2018':pShade(hc,-.3),hcDD=dark?'#0a0705':pShade(hc,-.5),hcL=dark?'#3a2c22':pShade(hc,.22);
+ const hairF=(x,y)=>{if(x>=CX+5)return (x%4===1&&y>6)?hcDD:hcD;if(x%5===2&&y>7)return hcD;if(y>=5&&y<=8&&x>=CX-7&&x<CX-1&&(x+y)%2===0)return hcL;return hc};
+ const cc=L.shirtC,ccD=pShade(cc,-.25),ccDD=pShade(cc,-.42),ccL=pShade(cc,.18),c2=L.shirt2,c2D=pShade(c2,-.25);
+ const RX=fem?8.6:9.1;
+ const inHead=(x,y)=>{const nx=(x+.5-CX)/RX,ny=(y+.5-18.6)/10.6;if(ny<0)return nx*nx+ny*ny<=1;return Math.pow(Math.abs(nx),fem?2.1:2.8)+ny*ny*(fem?1.05:1)<=1};
+ const halfW=y=>y===32?8.5:y===33?11.5:y===34?13.5:y>=35?15:-1;
+ const shirtIn=(x,y)=>Math.abs(x+.5-CX)<=halfW(y);
  /* 1. hair behind the head */
- const back={long:()=>{ell(CX,9,7,6.5,hairF);rect(5,9,18,19,(x,y)=>(x<7||x>16)?hairF(x,y):hairF(x,y))},
-  afro:()=>ell(CX,8,8.6,7.6,(x,y)=>((x*7+y*3)%5===0)?hcD:hairF(x,y)),
-  ponytail:()=>{ell(18.6,12,2.2,4.6,hairF);ell(17.6,8.5,1.6,1.6,L.hatC)},
-  mullet:()=>rect(6,11,17,19,(x,y)=>(x<8||x>15)?hairF(x,y):null),
-  dreads:()=>{ell(CX,9,7.2,6.5,hairF);for(let x=4;x<=19;x++)for(let y=9;y<=20;y++)if(x<7||x>16)set(x,y,(x%2)?hcD:hc);[4,6,17,19].forEach(x=>set(x,21,L.hatC))},
-  bob:()=>{ell(CX,10,7.2,7.4,hairF,(x,y)=>y<=16)},
-  bun:()=>{ell(CX,2,3.3,2.1,(x,y)=>x>=13?hcD:hc);rect(9,3,14,3,hcD)}};
- layer='hair';if(back[L.hair])back[L.hair]();layer='';
+ layer='hair';
+ const back={long:()=>{ell(CX,15,11.6,10.5,hairF);rect(8,15,31,33,(x,y)=>(x<12||x>27)?hairF(x,y):hairF(x,y))},
+  afro:()=>ell(CX,13.5,14,12.5,(x,y)=>((x*7+y*5)%6===0)?hcD:(((x+y*3)%11===0)?hcL:hairF(x,y))),
+  ponytail:()=>{ell(31.5,22,3.2,7.5,hairF);rect(29,13,31,15,L.hatC)},
+  mullet:()=>rect(10,18,29,32,(x,y)=>((x<13||x>26)?hairF(x,y):null)),
+  dreads:()=>{ell(CX,15,12,10.5,hairF);for(let x=7;x<=32;x++)for(let y=15;y<=34;y++)if(x<12||x>27)set(x,y,(x%3===0)?hcDD:(x%3===1?hc:hcD));[7,10,29,32].forEach(x=>{set(x,35,L.hatC);set(x+1,35,L.hatC)})},
+  bob:()=>ell(CX,17,12,12.4,hairF,(x,y)=>y<=27),
+  bun:()=>{ell(CX,3.6,4.8,3.4,(x,y)=>x>=CX+2?hcD:((x+y)%4===0?hcL:hc));rect(16,6,23,6,hcDD)}};
+ if(back[L.hair])back[L.hair]();
+ layer='';
  /* 2. neck and clothes */
- rect(10,16,13,18,(x,y)=>x>=12||y===16?skD:sk);
- for(let y=19;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y))set(x,y,x>=17?ccD:(x<=5&&y>=21?ccL:cc));
+ rect(16,26,23,32,(x,y)=>y<=28?skDD:(x>=21?skD:sk));
+ for(let y=32;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y)){const dx=x+.5-CX,w=halfW(y);set(x,y,dx>w-4?ccD:(dx<-w+3?ccL:cc))}
+ for(let y=36;y<N;y++){set(9,y,ccD);set(30,y,ccDD)}
  const S={
-  tee:()=>{rect(10,19,13,19,skD);set(9,19,ccD);set(14,19,ccD)},
-  hoodie:()=>{rect(8,18,15,19,ccD);rect(10,18,13,18,skD);rect(10,19,13,19,ccD);set(10,21,c2);set(10,22,c2);set(13,21,c2);set(13,22,c2);rect(8,22,15,23,(x,y)=>y===22&&(x===8||x===15)?ccD:null)},
-  tank:()=>{for(let y=19;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y)&&(x<=6||x>=17))set(x,y,x>=17?skD:sk);rect(9,19,14,20,skD);set(7,19,cc);set(16,19,cc);set(7,20,cc);set(16,20,cc);set(8,20,cc);set(15,20,cc)},
-  hawaiian:()=>{for(let y=20;y<N;y++)for(let x=3;x<=20;x++)if(shirtIn(x,y)&&((x*3+y*5)%7===0))set(x,y,c2);rect(10,19,13,20,skD);mir(9,19,'#f1e8db');mir(9,20,'#f1e8db');mir(10,21,'#f1e8db');set(11,21,skD);set(12,21,skD)},
-  tiedye:()=>{const R=['#e84a5f','#f5b942','#f2e05a','#3e8a34','#5ab4c2','#6a3aa8'];for(let y=19;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y)){const a=Math.atan2(y-23,x-11.5),d=Math.hypot(x-11.5,y-23);set(x,y,R[Math.floor((a*3+d*.9+20))%6])}rect(10,19,13,19,skD)},
-  jacket:()=>{for(let y=19;y<N;y++)for(let x=8;x<=15;x++)if(shirtIn(x,y))set(x,y,c2);rect(10,19,13,19,skD);for(let y=19;y<N;y++){set(9,y,ccL);set(14,y,ccD)}mir(8,20,ccL);set(15,22,'#d4a020')},
-  suit:()=>{for(let y=19;y<N;y++)for(let x=9;x<=14;x++)if(shirtIn(x,y))set(x,y,'#f4f4f8');rect(10,19,13,19,skD);for(let y=20;y<N;y++){set(11,y,c2);set(12,y,c2)}set(11,20,pShade(c2,.2));mir(9,20,ccD);mir(9,21,ccD);mir(10,22,ccD)},
-  jersey:()=>{for(let y=19;y<N;y++){for(let x of [3,4,5,18,19,20])if(shirtIn(x,y))set(x,y,c2)}rect(9,19,14,19,c2);rect(10,19,13,19,skD);rect(10,21,13,23,(x,y)=>((x===10||x===13)&&y>=21)||(y===21)||(y===23)?c2:null)},
-  robe:()=>{for(let y=19;y<N;y++){set(10+(y-19),y,c2);set(13-(y-19),y,c2)}rect(10,19,13,19,skD);for(let y=21;y<N;y++)for(let x=3;x<=20;x++)if(shirtIn(x,y)&&(x+y)%6===0)set(x,y,ccL)},
-  apron:()=>{rect(8,20,15,23,'#f4f4f8');rect(8,20,15,20,'#d8d8e0');set(8,19,'#f4f4f8');set(15,19,'#f4f4f8');rect(10,19,13,19,skD);rect(10,22,13,22,c2)}
+  tee:()=>{ell(CX,31.5,4.6,2.2,skD,(x,y)=>y>=31);for(let x=14;x<=25;x++){const d=Math.abs(x+.5-CX);if(d>3.6&&d<5.6)set(x,32,ccDD);if(d<=3.6)set(x,33,ccDD)}rect(17,32,22,32,skD)},
+  hoodie:()=>{rect(12,31,27,33,(x,y)=>x>=24?ccDD:ccD);rect(16,31,23,32,skD);rect(15,33,24,33,ccDD);pts([[16,34],[16,35],[16,36],[23,34],[23,35],[23,36]],c2);set(16,37,c2D);set(23,37,c2D);rect(13,37,26,39,(x,y)=>y===37?ccDD:null)},
+  tank:()=>{for(let y=32;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y)&&Math.abs(x+.5-CX)>8)set(x,y,x>CX?skD:sk);ell(CX,32,6,3.5,skD,(x,y)=>y>=31);rect(11,32,13,35,cc);rect(26,32,28,35,ccD);set(10,36,ccD);set(29,36,ccDD)},
+  hawaiian:()=>{for(let y=34;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y)&&((x*5+y*7)%13===0)){set(x,y,c2);set(x+1,y,c2);set(x,y+1,c2);set(x+1,y+1,c2D)}
+   rect(16,32,23,34,skD);for(let k=0;k<5;k++){mir(14+Math.floor(k/2),32+k,'#f4f0ea');mir(15+Math.floor(k/2),32+k,'#f4f0ea')}rect(18,35,21,35,skDD);pts([[19,37],[19,39]],'#f4f0ea')},
+  tiedye:()=>{const R=['#e84a5f','#f5b942','#f2e05a','#3e8a34','#5ab4c2','#6a3aa8'];for(let y=32;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y)){const a=Math.atan2(y-37,x-19.5),d=Math.hypot(x-19.5,y-37);set(x,y,R[Math.floor(a*2.2+d*.7+30)%6])}ell(CX,31.5,4.6,2.2,skD,(x,y)=>y>=31)},
+  jacket:()=>{for(let y=32;y<N;y++)for(let x=14;x<=25;x++)if(shirtIn(x,y))set(x,y,c2);ell(CX,31.5,4.2,2,skD,(x,y)=>y>=31);for(let y=32;y<N;y++){set(14-(y>36?1:0),y,ccL);set(25+(y>36?1:0),y,ccDD)}for(let k=0;k<5;k++)mir(13+k,33+k,ccL);rect(19,34,20,39,(x,y)=>(y%2)?'#d4a020':'#8a6a14');set(28,37,'#d4a020')},
+  suit:()=>{for(let y=32;y<N;y++)for(let x=15;x<=24;x++)if(shirtIn(x,y))set(x,y,'#f4f4f8');rect(17,32,22,32,skD);for(let y=33;y<N;y++){set(19,y,c2);set(20,y,c2D)}rect(18,33,21,33,c2);for(let k=0;k<6;k++){mir(14+k,33+k,ccDD);mir(13+k,33+k,ccD)}set(26,37,'#f4f4f8');set(27,37,'#e84a8a')},
+  jersey:()=>{for(let y=32;y<N;y++)for(let x of [5,6,7,8,31,32,33,34])if(shirtIn(x,y))set(x,y,c2);ell(CX,31.5,5,2.4,c2,(x,y)=>y>=31);ell(CX,31.5,3.8,1.6,skD,(x,y)=>y>=31);
+   const D={'4':['101','101','111','001','001'],'2':['111','001','111','100','111']};[['4',16],['2',21]].forEach(([d,x0])=>D[d].forEach((row,r)=>[...row].forEach((ch,k)=>{if(ch==='1')set(x0+k,34+r,c2)})))},
+  robe:()=>{for(let y=32;y<N;y++){set(16+(y-32),y,c2);set(17+(y-32),y,c2D);set(23-(y-32),y,c2);set(22-(y-32),y,c2D)}ell(CX,32,4,2,skD,(x,y)=>y>=31);rect(8,37,31,38,(x,y)=>shirtIn(x,y)?c2D:null);for(let y=34;y<N;y++)for(let x=0;x<N;x++)if(shirtIn(x,y)&&(x+y)%7===0&&get(x,y)===cc)set(x,y,ccL)},
+  apron:()=>{rect(13,34,26,39,'#f4f4f8');rect(13,34,26,34,'#d8d8e0');set(14,33,'#f4f4f8');set(25,33,'#f4f4f8');for(let y=32;y<34;y++){set(14,y,'#d8d8e0');set(25,y,'#d8d8e0')}ell(CX,31.5,4.6,2.2,skD,(x,y)=>y>=31);rect(16,36,23,38,(x,y)=>(y===36||x===16||x===23)?c2:null)}
  };(S[L.shirt]||S.tee)();
  /* 3. neck pieces */
- const NK={chain:()=>{[[9,19],[10,20],[11,21],[12,21],[13,20],[14,19]].forEach(([x,y])=>set(x,y,'#f5b942'))},
-  leaf:()=>{[[9,19],[10,20],[13,20],[14,19]].forEach(([x,y])=>set(x,y,'#d8d4d0'));[[11,21],[12,21],[11,22],[12,22],[10,21],[13,21]].forEach(([x,y],k)=>set(x,y,k<2?'#7ccb5e':'#3e8a34'))},
-  scarf:()=>{rect(8,18,15,19,c2);rect(13,20,14,22,pShade(c2,-.2))},
-  bowtie:()=>{set(10,19,c2);set(13,19,c2);set(11,19,pShade(c2,-.25));set(12,19,pShade(c2,-.25));set(10,20,c2);set(13,20,c2)},
-  beads:()=>{[[9,19],[10,20],[11,21],[12,21],[13,20],[14,19]].forEach(([x,y],k)=>set(x,y,['#e84a5f','#f5b942','#3e8a34'][k%3]))}};
+ const NK={chain:()=>{for(let k=0;k<=6;k++){mir(13+k,32+Math.round(k*.7),k%2?'#f5b942':'#c08a1a')}},
+  leaf:()=>{for(let k=0;k<=5;k++)mir(14+k,32+Math.round(k*.6),'#c9c5c0');pts([[19,36],[20,36],[18,37],[19,37],[20,37],[21,37],[19,38],[20,38],[17,36],[22,36]],'#5aa83e');pts([[19,36],[20,37]],'#8cd06a');set(19,39,'#3e7a2a')},
+  scarf:()=>{rect(12,30,27,33,(x,y)=>((x+y)%4===0)?c2D:c2);rect(23,34,25,38,(x,y)=>x===25?c2D:c2)},
+  bowtie:()=>{pts([[16,32],[17,32],[16,33],[17,33],[18,33],[16,34],[17,34],[22,32],[23,32],[21,33],[22,33],[23,33],[22,34],[23,34]],c2);rect(19,33,20,33,c2D)},
+  beads:()=>{for(let k=0;k<=6;k++){mir(13+k,32+Math.round(k*.7),['#e84a5f','#f5b942','#3e8a34'][k%3])}}};
  if(NK[L.neck])NK[L.neck]();
  /* 4. head */
- for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(inHead(x,y)){const nx=(x+.5-CX)/RX;set(x,y,nx>.6||(!inHead(x,y+1))?skD:sk)}
- set(8,13,skL);
- [10,11,12].forEach(y=>{set(5,y,y===11?skD:sk);set(18,y,skD)});set(5,12,skD);
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(inHead(x,y)){const nx=(x+.5-CX)/RX,ny=(y+.5-18.6)/10.6;
+  let c=sk;if(nx>.78||(!inHead(x,y+1)))c=skDD;else if(nx>.5||ny>.82)c=skD;else if(nx<-.3&&nx>-.7&&ny<-.3&&ny>-.75&&(x+y)%2===0)c=skL;set(x,y,c)}
+ ell(10,19.6,1.6,2.8,sk);ell(29,19.6,1.6,2.8,skD);pts([[10,19],[10,20],[10,21]],skDD);pts([[29,19],[29,20],[29,21]],pShade(sk,-.4));
  /* 5. face */
- const brow=pShade(hc,hc==='#f4f4f8'||hc==='#d8d4d0'?-.35:-.15);
- const ey=11,eW=L.eyes==='red'?'#f2b0b0':'#f4f0ea',pu=L.eyeC;
- if(L.eyes==='happy'){mir(8,ey,'#2a1714');mir(9,ey-1,'#2a1714');mir(10,ey,'#2a1714');}
- else{
-  const eye=(left)=>{const wx=left?8:15,px=left?9:14;
-   if(L.eyes==='wink'&&!left){set(13,ey,'#2a1714');set(14,ey,'#2a1714');set(15,ey,'#2a1714');return}
-   set(wx,ey,eW);set(px,ey,pu);
-   if(L.eyes==='wide'){set(wx,ey-1,eW);set(px,ey-1,eW);set(px,ey,pu);set(wx,ey+1,null)}
-   if(L.eyes==='sleepy'||L.eyes==='red'){set(wx,ey-1,skDD);set(px,ey-1,skDD)}};
-  eye(true);eye(false);
-  if(fem&&L.eyes!=='happy'){set(7,ey-1,'#2a1714');set(16,ey-1,'#2a1714')}
- }
- if(L.eyes!=='sleepy'&&L.eyes!=='red'){mir(8,9,brow);mir(9,9,brow)}else{mir(8,9,brow);mir(9,9,brow);mir(10,9,brow)}
- set(12,13,skDD);set(11,13,skD);
- const lip=fem?'#b8405a':'#7a3a34';
- const M={smile:()=>{rect(10,15,13,15,lip);set(9,14,lip);set(14,14,lip)},
-  grin:()=>{rect(10,15,13,15,'#f4f0ea');set(9,14,lip);set(14,14,lip);rect(10,16,13,16,lip)},
-  neutral:()=>rect(10,15,13,15,lip),
-  laugh:()=>{rect(10,15,13,16,'#3a0e14');rect(10,15,13,15,'#f4f0ea');set(11,16,'#e86a8a');set(12,16,'#e86a8a');set(9,14,lip);set(14,14,lip)},
-  smirk:()=>{rect(11,15,13,15,lip);set(14,14,lip)},
-  o:()=>{set(11,15,lip);set(12,15,lip);set(11,16,lip);set(12,16,lip)}};
+ const lidC=skDD,lash='#24140e',eW=L.eyes==='red'?'#f4c0c0':'#f6f2ec';
+ const eye=(left)=>{const x0=left?14:22,xi1=left?15:23,xi2=left?16:24,x3=left?17:25;
+  if(L.eyes==='happy'||(L.eyes==='wink'&&!left)){pts([[x0,20],[xi1,19],[xi2,19],[x3,20]],lash);return}
+  set(x0,20,eW);set(x3,20,eW);set(xi1,20,L.eyeC);set(xi2,20,pShade(L.eyeC,-.45));
+  if(L.eyes==='sleepy'||L.eyes==='red'){rect(x0,19,x3,19,lidC);rect(x0,18,x3,18,pShade(sk,-.2));if(L.eyes==='red'){set(x0,20,'#f0a0a0')}}
+  else{set(x0,19,eW);set(x3,19,eW);set(xi1,19,pShade(L.eyeC,.35));set(xi2,19,L.eyeC);rect(x0,18,x3,18,lash);if(L.eyes==='wide'){rect(x0,17,x3,17,lash);rect(x0,18,x3,18,eW);set(xi1,18,L.eyeC);set(xi2,18,L.eyeC)}}
+  rect(x0,21,x3,21,skD)};
+ eye(true);eye(false);
+ if(fem&&L.eyes!=='happy'){set(13,18,lash);set(12,17,lash);if(L.eyes!=='wink'){set(26,18,lash);set(27,17,lash)}}
+ if(L.marks==='eyeliner'&&L.eyes!=='happy'){set(13,19,lash);set(12,18,lash);set(26,19,lash);set(27,18,lash);rect(14,18,17,18,lash);rect(22,18,25,18,lash)}
+ const bc=pShade(hc,(hc==='#f4f4f8'||hc==='#a8a4a0'||hc==='#f2e2a8')?-.35:-.1),by=L.eyes==='wide'?15:16;
+ const B={normal:()=>{rect(14,by,17,by,bc);rect(22,by,25,by,bc);set(13,by+1,bc);set(26,by+1,bc)},
+  thick:()=>{rect(13,by,17,by,bc);rect(14,by-1,17,by-1,bc);rect(22,by,26,by,bc);rect(22,by-1,25,by-1,bc)},
+  thin:()=>{rect(14,by,17,by,pMix(bc,sk,.35));rect(22,by,25,by,pMix(bc,sk,.35))},
+  raised:()=>{pts([[13,by],[14,by-1],[15,by-2],[16,by-2],[17,by-1]],bc);pts([[22,by],[23,by],[24,by],[25,by],[26,by+1]],bc)},
+  angry:()=>{pts([[13,by-1],[14,by-1],[15,by],[16,by],[17,by+1]],bc);pts([[22,by+1],[23,by],[24,by],[25,by-1],[26,by-1]],bc)},
+  unibrow:()=>{rect(13,by,26,by,bc);rect(14,by-1,25,by-1,bc)}};
+ (B[L.brows]||B.normal)();
+ const NS={button:()=>{set(20,22,skD);pts([[18,23],[21,23]],skDD);rect(19,23,20,23,skD);set(19,21,skL)},
+  round:()=>{ell(19.5,22.6,2.2,1.6,(x,y)=>x>=20?skD:sk);pts([[18,23],[21,23]],skDD);set(19,22,skL)},
+  long:()=>{for(let y=19;y<=23;y++)set(20,y,skD);set(19,20,skL);set(19,21,skL);pts([[18,24],[21,24]],skDD);rect(19,24,20,24,skD)},
+  wide:()=>{rect(17,23,22,23,skD);pts([[17,23],[22,23]],skDD);set(19,21,skL);set(20,22,skD)}};
+ (NS[L.nose]||NS.button)();
+ const lip=fem?'#b8405a':pMix(sk,'#7a2a2a',.55),lipL=fem?'#d8687e':pMix(sk,'#a04a4a',.35);
+ const M={smile:()=>{rect(17,25,22,25,lip);set(16,24,lip);set(23,24,lip);rect(18,26,21,26,lipL)},
+  grin:()=>{rect(17,25,22,25,'#f6f2ec');rect(17,24,22,24,lip);set(16,24,lip);set(23,24,lip);set(16,25,lip);set(23,25,lip);rect(17,26,22,26,lip);pts([[19,25],[20,25]],'#e8e2d8')},
+  neutral:()=>{rect(17,25,22,25,lip);rect(18,26,21,26,lipL)},
+  laugh:()=>{rect(17,25,22,27,'#3a0e14');rect(17,25,22,25,'#f6f2ec');rect(18,27,21,27,'#e86a8a');set(16,24,lip);set(23,24,lip);rect(17,28,22,28,lipL)},
+  smirk:()=>{rect(18,25,22,25,lip);set(23,24,lip);rect(19,26,21,26,lipL)},
+  o:()=>{rect(19,25,20,26,'#3a0e14');pts([[18,25],[18,26],[21,25],[21,26],[19,24],[20,24],[19,27],[20,27]],lip)}};
  (M[L.mouth]||M.smile)();
- if(fem&&(L.mouth==='smile'||L.mouth==='neutral'||L.mouth==='smirk'))rect(11,16,12,16,pShade(lip,.3));
+ const MK={freckles:()=>pts([[13,22],[15,23],[14,24],[12,23],[26,22],[24,23],[25,24],[27,23],[17,21],[22,21]],pMix(sk,'#7a4a2a',.45)),
+  blush:()=>{rect(12,23,14,23,blush);rect(25,23,27,23,blush);set(13,24,blush);set(26,24,blush)},
+  mole:()=>set(24,25,pMix(sk,'#2a1a10',.7)),
+  scar:()=>{pts([[24,15],[25,16],[24,17],[25,18],[24,22],[25,23]],pMix(sk,'#c06070',.5))},
+  bandaid:()=>{rect(23,13,27,14,'#e8c890');pts([[24,13],[26,14]],'#c8a070');rect(24,12,25,15,'#e8c890');set(25,13,'#f4e0b8')},
+  tattoo:()=>{pts([[26,26],[25,25],[27,25],[26,25],[24,24],[28,24],[26,24],[26,27]],'#3a6a5a')},
+  eyeliner:()=>{}};
+ if(MK[L.marks])MK[L.marks]();
  /* 6. facial hair */
- const mouthPx=new Set();for(let y=14;y<=16;y++)for(let x=9;x<=14;x++){const c=get(x,y);if(c===lip||c==='#f4f0ea'||c==='#3a0e14'||c==='#e86a8a')mouthPx.add(x+','+y)}
- const BH={stubble:()=>{for(let y=13;y<=18;y++)for(let x=5;x<=18;x++)if(inHead(x,y)&&(x+y)%2&&(x%2||y>=16)&&!mouthPx.has(x+','+y)&&y>=14)set(x,y,skDD)},
-  mustache:()=>{rect(9,14,14,14,hc);set(9,15,hc);set(14,15,hc)},
-  goatee:()=>{rect(10,14,13,14,hc);rect(10,17,13,17,hc);set(10,16,hc);set(13,16,hc);rect(11,18,12,18,hcD)},
-  soulpatch:()=>{set(11,17,hc);set(12,17,hc)},
-  chinstrap:()=>{for(let y=11;y<=18;y++)for(let x=4;x<=19;x++)if(inHead(x,y)&&(!inHead(x-1,y)||!inHead(x+1,y)||!inHead(x,y+1)))set(x,y,hc)},
-  full:()=>{for(let y=12;y<=19;y++)for(let x=4;x<=19;x++)if((inHead(x,y)&&(y>=14||x<=6||x>=17))&&!mouthPx.has(x+','+y))set(x,y,hairF(x,y));rect(11,17,12,17,pShade(hc,.1))},
-  wizard:()=>{for(let y=12;y<=23;y++)for(let x=4;x<=19;x++){const inB=(inHead(x,y)&&(y>=14||x<=6||x>=17))||(y>=17&&Math.abs(x+.5-CX)<=7.2-(y-17)*.9);if(inB&&!mouthPx.has(x+','+y))set(x,y,(x+y)%4===0?hcL:hairF(x,y))}}};
+ const mouthPx=new Set();for(let y=23;y<=28;y++)for(let x=15;x<=24;x++){const c=get(x,y);if(c===lip||c===lipL||c==='#f6f2ec'||c==='#3a0e14'||c==='#e86a8a'||c==='#e8e2d8')mouthPx.add(x+','+y)}
+ const BH={stubble:()=>{for(let y=22;y<=30;y++)for(let x=8;x<=31;x++)if(inHead(x,y)&&((x+y)%2===0)&&(x%2===0||y>=27)&&!mouthPx.has(x+','+y)&&(y>=24||x<=12||x>=27))set(x,y,pMix(get(x,y)||sk,hc,.45))},
+  mustache:()=>{rect(16,23,23,23,hc);rect(15,24,17,24,hc);rect(22,24,24,24,hcD);rect(17,23,18,23,hcL)},
+  handlebar:()=>{rect(16,23,23,23,hc);pts([[15,24],[14,24],[13,23],[13,22],[24,24],[25,24],[26,23],[26,22]],hc);set(17,23,hcL)},
+  goatee:()=>{rect(16,23,23,23,hc);set(15,24,hc);set(24,24,hc);rect(17,27,22,29,(x,y)=>x>=21?hcD:hc);set(16,26,hc);set(23,26,hcD);rect(18,30,21,30,hcD);set(19,28,hcL)},
+  soulpatch:()=>rect(19,27,20,28,hc),
+  chinstrap:()=>{for(let y=17;y<=30;y++)for(let x=8;x<=31;x++)if(inHead(x,y)&&(!inHead(x-1,y)||!inHead(x+1,y)||!inHead(x,y+1)||!inHead(x-2,y)||!inHead(x+2,y)))set(x,y,x>CX+3?hcD:hc)},
+  full:()=>{for(let y=17;y<=31;y++)for(let x=8;x<=31;x++)if((inHead(x,y)&&(y>=23||x<=11||x>=28))&&!mouthPx.has(x+','+y))set(x,y,hairF(x,y));rect(16,23,23,23,hc)},
+  wizard:()=>{for(let y=17;y<N;y++)for(let x=6;x<=33;x++){const inB=(inHead(x,y)&&(y>=23||x<=11||x>=28))||(y>=27&&Math.abs(x+.5-CX)<=10.5-(y-27)*.8);if(inB&&!mouthPx.has(x+','+y))set(x,y,(x%3===0)?hcD:((x+y)%5===0?hcL:hc))}rect(16,23,23,23,hc)}};
  if(BH[L.beard])BH[L.beard]();
- if(L.beard!=='none'&&L.beard!=='stubble'&&L.beard!=='soulpatch')(M[L.mouth]||M.smile)();
+ if(['full','wizard','goatee','chinstrap'].includes(L.beard))(M[L.mouth]||M.smile)();
  /* 7. hair on top */
- const top=(ry=4,yMax=8)=>ell(CX,8,6.4,ry+1.4,hairF,(x,y)=>y<=yMax);
- const sides=(yTo=10)=>{for(let y=8;y<=yTo;y++){set(6,y,hairF(6,y));set(17,y,hairF(17,y))}};
- const F={buzz:()=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(inHead(x,y)&&y<=8)set(x,y,(x+y)%2?pShade(hc,.18):pShade(sk,-.12))},
-  short:()=>{top();sides(9)},
-  sidepart:()=>{top();sides(10);rect(6,9,10,9,hairF);set(11,8,hcD);rect(7,8,10,8,hairF)},
-  messy:()=>{top();sides(9);[[6,3],[8,2],[10,2],[13,2],[15,3],[17,4],[9,1],[14,1]].forEach(([x,y])=>set(x,y,hc));set(10,9,hc);set(13,9,hc)},
-  spiky:()=>{top();sides(9);[6,8,10,12,14,16].forEach((x,k)=>{for(let y=0;y<4;y++)if(Math.abs(x-(x))<=1)set(x,1+y+(k%2),hc);set(x+1,3+(k%2),hc)})},
-  curly:()=>{top(4,8);sides(10);for(let a=0;a<12;a++){const t=Math.PI+a/11*Math.PI;set(CX+Math.cos(t)*6.6,8.2+Math.sin(t)*5.4,hcD)}for(let y=3;y<=8;y++)for(let x=6;x<=17;x++)if(get(x,y)===hc&&(x*5+y*3)%4===0)set(x,y,hcL)},
-  mohawk:()=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(inHead(x,y)&&y<=8)set(x,y,pShade(sk,-.1));rect(10,0,13,8,(x,y)=>x===13?hcD:hc);set(10,0,null);set(13,0,null)},
-  bob:()=>{top(4.6,9);rect(5,9,6,15,hairF);rect(17,9,18,15,hairF);rect(7,9,16,9,hairF)},
-  long:()=>{top(4.4,9);rect(5,9,6,18,hairF);rect(17,9,18,18,hairF);rect(7,8,9,9,hairF)},
-  ponytail:()=>{top(4.2,8);sides(9)},
-  bun:()=>{ell(CX,8.6,6.5,4.9,hairF,(x,y)=>y<=8&&y>=4);sides(9)},
-  afro:()=>{ell(CX,7.6,7.6,6,(x,y)=>((x*7+y*3)%5===0)?hcD:hairF(x,y),(x,y)=>y<=8||(x<6||x>17)&&y<=13)},
-  dreads:()=>{top(4.4,8);for(let x=5;x<=18;x+=2)for(let y=8;y<=10;y++)if(x<8||x>15)set(x,y,hc)},
-  mullet:()=>{top(4,8);sides(10);rect(7,8,9,8,hairF)}};
- layer='hair';if(F[L.hair])F[L.hair]();layer='';
+ layer='hair';
+ const top=(yMax=13,ry=8.8)=>ell(CX,13.6,10.4,ry,hairF,(x,y)=>y<=yMax);
+ const sides=(yTo=17)=>{for(let y=12;y<=yTo;y++){set(10,y,hairF(10,y));set(11,y,hairF(11,y));set(28,y,hairF(28,y));set(29,y,hairF(29,y))}};
+ const fringe=(y0,x0,x1)=>{for(let x=x0;x<=x1;x++)set(x,y0,(x%3===0)?hcD:hc)};
+ const F={buzz:()=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(inHead(x,y)&&y<=13)set(x,y,(x+y)%2?pMix(hc,sk,.35):pMix(sk,hc,.25))},
+  short:()=>{top();sides(16);fringe(13,12,27);pts([[14,14],[17,14],[22,14],[25,14]],hcD)},
+  sidepart:()=>{top();sides(17);rect(11,13,18,14,hairF);rect(11,15,13,15,hairF);line(16,5,16,12,hcDD);pts([[19,13],[20,12]],hcD)},
+  messy:()=>{top();sides(16);fringe(13,12,27);[[11,6],[13,4],[16,3],[19,2],[22,3],[25,4],[28,6],[15,1],[23,1],[18,0]].forEach(([x,y])=>{set(x,y,hc);set(x,y+1,hc);set(x+1,y+1,hcD)});pts([[15,14],[16,15],[23,14],[24,15],[19,14]],hc)},
+  spiky:()=>{top();sides(16);fringe(13,12,27);[11,14,17,20,23,26,28].forEach((x,k)=>{const h=k%2?3:5;for(let y=0;y<h;y++){const w=Math.floor((h-y)/2);for(let d=-w;d<=w;d++)set(x+d,5-h+y+1+(k%2),d>0?hcD:hc)}})},
+  curly:()=>{top(13,9);sides(18);for(let a=0;a<16;a++){const t=Math.PI+a/15*Math.PI;ell(CX+Math.cos(t)*10,13.4+Math.sin(t)*8.4,1.6,1.6,(x,y)=>(x+y)%2?hcD:hc)}for(let y=4;y<=13;y++)for(let x=10;x<=29;x++)if(hm[y*N+x]&&(x*5+y*3)%7===0)set(x,y,hcL);for(let x=12;x<=27;x+=3)ell(x+.5,13.5,1.4,1.2,(xx,yy)=>((xx+yy)%2?hc:hcD))},
+  mohawk:()=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(inHead(x,y)&&y<=13)set(x,y,(x+y)%2?pMix(sk,hc,.25):sk);for(let y=0;y<=13;y++)for(let x=17;x<=22;x++){if(y<2&&(x===17||x===22))continue;set(x,y,x>=21?hcD:(x===18&&y%2?hcL:hc))}},
+  bob:()=>{top(15,9.4);rect(8,15,11,27,(x,y)=>x===11?hcD:hairF(x,y));rect(28,15,31,27,(x,y)=>hcD);for(let x=11;x<=28;x++){set(x,14,(x%3===0)?hcD:hc);set(x,15,(x%2===0)?hc:null)}},
+  long:()=>{top(14,9.2);rect(8,14,11,33,hairF);rect(28,14,31,33,(x,y)=>(x+y)%4===0?hcDD:hcD);rect(11,13,16,14,hairF);set(12,15,hc);set(13,15,hc)},
+  ponytail:()=>{top(13,8.6);sides(16);fringe(13,12,27)},
+  bun:()=>{ell(CX,14.2,10.4,9.2,hairF,(x,y)=>y<=13&&y>=6);sides(16);rect(12,13,27,13,(x,y)=>x%4===0?hcD:hc)},
+  afro:()=>{ell(CX,12.8,13,10,(x,y)=>((x*7+y*5)%6===0)?hcD:(((x+y*3)%11===0)?hcL:hairF(x,y)),(x,y)=>y<=13||((x<10||x>29)&&y<=22))},
+  dreads:()=>{top(13,8.8);for(let x=8;x<=31;x+=2)for(let y=12;y<=17;y++)if(x<12||x>27)set(x,y,(y%2)?hc:hcD);for(let x=12;x<=27;x+=2){set(x,13,hcD);set(x,14,hc)}},
+  mullet:()=>{top(13,8.6);sides(18);fringe(13,12,27);rect(12,14,15,14,hc)}};
+ if(F[L.hair])F[L.hair]();
+ layer='';
  /* 8. headgear */
- const hC=L.hatC,hD=pShade(hC,-.28),hL=pShade(hC,.25);
- const H={beanie:()=>{ell(CX,8,6.9,5.6,(x,y)=>x>=15?hD:((x%2)?hC:hL),(x,y)=>y<=7);rect(5,8,18,9,(x,y)=>y===9?hD:hC)},
-  cap:()=>{ell(CX,8,6.6,5,(x,y)=>x>=15?hD:hC,(x,y)=>y<=7);rect(5,8,18,8,hD);rect(4,9,19,9,(x)=>x<6||x>17?hD:hC);set(CX,3,hL)},
-  capback:()=>{ell(CX,8,6.6,5,(x,y)=>x>=15?hD:hC,(x,y)=>y<=7);rect(5,8,18,8,hD);rect(9,6,14,7,'#f1e8db');rect(10,6,13,6,hD)},
-  bucket:()=>{rect(7,3,16,7,(x,y)=>x>=14?hD:(y===3?hL:hC));set(7,3,null);set(16,3,null);rect(3,8,20,8,hC);rect(3,9,5,9,hD);rect(18,9,20,9,hD);rect(6,7,17,7,hD)},
-  headband:()=>{rect(6,7,17,8,(x,y)=>y===8?hD:hC);set(18,8,hC);set(19,9,hD);set(19,10,hC)},
-  bandana:()=>{ell(CX,8,6.6,5.2,(x,y)=>((x+y)%4===0)?'#f1e8db':(x>=15?hD:hC),(x,y)=>y<=8);set(18,8,hC);set(19,9,hC);set(20,10,hD);set(19,11,hD)},
-  tam:()=>{const R=['#e84a5f','#f5b942','#3e8a34'];ell(CX,5.2,8.4,4.4,(x,y)=>y<=3?'#e84a5f':y<=5?'#f5b942':'#3e8a34');rect(5,8,18,8,'#16100c')},
-  fedora:()=>{rect(7,3,16,7,(x,y)=>x>=14?hD:hC);set(7,3,null);set(16,3,null);rect(10,3,13,3,hD);rect(7,6,16,6,'#16100c');rect(3,8,20,8,hC);set(3,8,hD);set(20,8,hD)},
-  tophat:()=>{rect(8,0,15,6,(x,y)=>x>=14?hD:hC);rect(8,5,15,5,L.shirt2);rect(5,7,18,7,hC);rect(5,8,18,8,hD)},
-  chef:()=>{ell(CX,3.2,7,3.6,(x,y)=>x>=16?'#d8d8e0':'#ffffff');rect(7,4,16,8,(x,y)=>x>=15?'#d8d8e0':'#ffffff');rect(7,8,16,8,'#d8d8e0')},
-  crown:()=>{rect(7,5,16,8,(x,y)=>y===8?'#c08a1a':'#f5b942');[7,9,11,12,14,16].forEach((x,k)=>{set(x,4,'#f5b942');if(k%2===0||x===11)set(x,3,'#f5b942')});set(9,6,'#e84a5f');set(12,6,'#5ab4c2');set(14,6,'#3e8a34');set(8,6,'#fff6c8')}};
+ const hC=L.hatC,hD=pShade(hC,-.25),hDD=pShade(hC,-.42),hL=pShade(hC,.22);
+ const H={beanie:()=>{ell(CX,14.6,11.2,10.6,(x,y)=>x>=CX+5?hD:((x%2)?hC:hL),(x,y)=>y<=12);rect(8,12,31,15,(x,y)=>y===15?hDD:((x%2)?hD:hC));ell(CX,3.4,2.6,2.2,(x,y)=>(x+y)%2?hL:'#f4f0ea')},
+  cap:()=>{ell(CX,14.2,10.8,9.6,(x,y)=>x>=CX+5?hD:(x<CX-5?hL:hC),(x,y)=>y<=12);line(19,5,19,12,hD);line(14,7,13,12,hD);line(25,7,26,12,hD);set(19,4,hDD);set(20,4,hDD);rect(8,13,31,13,hDD);rect(6,14,33,15,(x,y)=>y===15?hDD:hD)},
+  capback:()=>{ell(CX,14.2,10.8,9.6,(x,y)=>x>=CX+5?hD:hC,(x,y)=>y<=12);rect(8,13,31,13,hDD);rect(15,9,24,12,'#f4f0ea');rect(16,9,23,9,hDD);rect(16,10,23,11,pShade(hc,0));rect(16,10,23,11,hairF);rect(15,12,24,12,hD)},
+  bucket:()=>{rect(12,4,27,12,(x,y)=>x>=24?hD:(y===4?hL:hC));pts([[12,4],[27,4]],null);rect(12,11,27,12,hDD);rect(4,13,35,14,(x,y)=>y===14?hD:hC);rect(4,15,7,15,hD);rect(32,15,35,15,hDD);set(13,4,null);set(26,4,null)},
+  headband:()=>{rect(9,11,30,13,(x,y)=>y===13?hD:(x%3===0?hL:hC));pts([[31,12],[32,13],[33,14],[32,15],[33,16]],hC);pts([[31,13],[32,14]],hD)},
+  bandana:()=>{ell(CX,14.4,10.9,10,(x,y)=>((x*3+y*2)%7===0)?'#f4f0ea':(x>=CX+5?hD:hC),(x,y)=>y<=14);pts([[31,13],[32,14],[33,15],[34,16],[33,17],[32,16]],hC);pts([[33,16],[34,17]],hD)},
+  tam:()=>{ell(CX,8.4,15.5,7.6,(x,y)=>y<=4?'#e84a5f':y<=7?'#f5b942':y<=10?'#3e8a34':'#2e6a2a',(x,y)=>y<=13);rect(8,13,31,14,'#16100c');for(let x=6;x<=33;x+=3)set(x,6,'#c43a4a')},
+  fedora:()=>{rect(11,3,28,11,(x,y)=>x>=25?hD:hC);rect(16,3,23,3,hD);set(11,3,null);set(28,3,null);set(12,3,null);set(27,3,null);rect(11,9,28,10,'#16100c');rect(4,11,35,12,(x,y)=>y===12?hD:hC);set(4,11,null);set(35,11,null);rect(3,12,4,12,hD);rect(35,12,36,12,hDD)},
+  tophat:()=>{rect(12,0,27,10,(x,y)=>x>=24?hD:(x<=13?hL:hC));rect(12,7,27,8,L.shirt2);rect(7,11,32,12,(x,y)=>y===12?hDD:hC)},
+  chef:()=>{const W='#ffffff',Gc='#d8d8e0';ell(13,5,5,4.2,W);ell(26,5,5,4.2,(x,y)=>x>=28?Gc:W);ell(CX,3.6,6,3.6,W);rect(10,7,29,13,(x,y)=>x>=26?Gc:W);rect(10,12,29,13,Gc);line(15,8,15,11,Gc);line(24,8,24,11,Gc)},
+  crown:()=>{rect(11,7,28,12,(x,y)=>y===12?'#a8701a':(y===7?'#ffd772':'#f5b942'));[[11,4],[15,3],[19,1],[20,1],[24,3],[28,4]].forEach(([x,y])=>{for(let yy=y;yy<7;yy++){set(x,yy,'#f5b942');if(yy>y){set(x-1,yy,'#d4a020');set(x+1,yy,'#ffd772')}}set(x,y-1,'#fff6c8')});pts([[14,9],[15,9]],'#e84a5f');pts([[19,9],[20,9]],'#5ab4c2');pts([[24,9],[25,9]],'#3e8a34');set(12,8,'#fff6c8')}};
  if(H[L.hat])H[L.hat]();
- /* hats squash the hair: nothing of the hair pokes out above the brim */
- if(['beanie','cap','capback','bucket','bandana','tam','fedora','tophat','chef'].includes(L.hat))for(let y=0;y<=8;y++)for(let x=0;x<N;x++)if(hm[y*N+x])g[y*N+x]=null;
+ if(['beanie','cap','capback','bucket','bandana','tam','fedora','tophat','chef'].includes(L.hat))for(let y=0;y<=13;y++)for(let x=0;x<N;x++)if(hm[y*N+x])g[y*N+x]=null;
  /* 9. glasses */
- const gc=L.glassC;
- const G2={round:()=>{for(const ox of [0,7]){set(7+ox,10,null);[[8,9],[9,9],[7,10],[10,10],[7,11],[10,11],[8,12],[9,12]].forEach(([x,y])=>set(x+ox,y,gc))}set(11,10,gc);set(12,10,gc)},
-  square:()=>{for(const ox of [0,7]){rect(7+ox,10,10+ox,10,gc);rect(7+ox,12,10+ox,12,gc);set(7+ox,11,gc);set(10+ox,11,gc)}set(11,11,gc);set(12,11,gc)},
-  shades:()=>{for(const ox of [0,7]){rect(7+ox,10,10+ox,12,'#111016');set(8+ox,10,pShade(gc,.1));set(7+ox,10,gc)}rect(7,10,16,10,gc);set(11,11,gc);set(12,11,gc)},
-  aviator:()=>{for(const ox of [0,7]){rect(7+ox,10,10+ox,11,pShade(gc,-.2));rect(8+ox,12,9+ox,12,pShade(gc,-.2));set(8+ox,10,pShade(gc,.35))}rect(7,9,16,9,'#c9a040');set(11,10,'#c9a040');set(12,10,'#c9a040')},
-  heart:()=>{for(const ox of [0,7]){[[7,10],[8,10],[9,10],[10,10],[7,11],[8,11],[9,11],[10,11],[8,12],[9,12]].forEach(([x,y])=>set(x+ox,y,'#e84a8a'));set(8+ox,9,'#e84a8a');set(10+ox,9,'#e84a8a');set(8+ox,10,'#ffb3d6')}set(11,10,'#e84a8a');set(12,10,'#e84a8a')},
-  visor:()=>{rect(6,10,17,11,gc);rect(7,10,16,10,pShade(gc,.4));set(5,10,'#16100c');set(18,10,'#16100c')},
-  monocle:()=>{[[14,9],[15,9],[13,10],[16,10],[13,11],[16,11],[14,12],[15,12]].forEach(([x,y])=>set(x,y,'#d4a020'));[[16,13],[17,14],[17,15],[18,16],[18,17]].forEach(([x,y])=>set(x,y,'#d4a020'))}};
+ const gc=L.glassC,gL=pShade(gc,.4);
+ const lens=(f)=>{for(const ox of [0,8])f(ox)};
+ const G2={round:()=>lens(ox=>{ell(15.5+ox,19.6,3.1,2.8,gc,(x,y)=>{const d=((x+.5-15.5-ox)/3.1)**2+((y+.5-19.6)/2.8)**2;return d>=.5});}),
+  square:()=>{lens(ox=>{rect(12+ox,17,19+ox,17,gc);rect(12+ox,22,19+ox,22,gc);rect(12+ox,18,12+ox,21,gc);rect(19+ox,18,19+ox,21,gc)});rect(20,18,19+0,18,gc);rect(10,18,11,18,gc);rect(28,18,29,18,gc)},
+  shades:()=>{lens(ox=>{rect(12+ox,17,19+ox,21,'#141218');rect(13+ox,22,18+ox,22,'#141218');line(13+ox,20,15+ox,18,'#4a4a62');set(16+ox,18,'#3a3a52')});rect(10,17,29,17,gc);rect(20,18,19,18,gc)},
+  aviator:()=>{lens(ox=>{rect(12+ox,18,19+ox,20,pMix(gc,'#16100c',.3));rect(13+ox,21,18+ox,21,pMix(gc,'#16100c',.3));rect(14+ox,22,17+ox,22,pMix(gc,'#16100c',.3));set(13+ox,18,pShade(gc,.45));set(14+ox,19,pShade(gc,.3))});rect(11,17,28,17,'#c9a040');rect(19,18,20,18,'#c9a040')},
+  heart:()=>{lens(ox=>{const hx=15.5+ox;for(let y=16;y<=23;y++)for(let x=11+ox;x<=20+ox;x++){const X=(x+.5-hx)/4,Y=-(y+.5-19.2)/3.6;if((X*X+Y*Y-1)**3-X*X*Y*Y*Y<=0)set(x,y,'#e84a8a')}set(13+ox,18,'#ffb3d6');set(14+ox,18,'#ffb3d6')});rect(19,19,20,19,'#c43a6a')},
+  visor:()=>{rect(9,17,30,21,(x,y)=>y===17?pShade(gc,.45):(y===21?pShade(gc,-.3):gc));rect(10,18,15,18,pShade(gc,.6));set(8,18,'#16100c');set(31,18,'#16100c')},
+  monocle:()=>{ell(23.5,19.6,3.3,3,'#d4a020',(x,y)=>((x+.5-23.5)/3.3)**2+((y+.5-19.6)/3)**2>=.55);for(let k=0;k<9;k++)set(27+Math.round(k*.3),22+k,k%2?'#d4a020':'#a8701a')}};
  if(G2[L.glasses])G2[L.glasses]();
- /* 10. ears and mouth */
- const E={stud:()=>set(5,13,'#f5b942'),hoop:()=>{set(5,13,'#f5b942');set(4,14,'#f5b942');set(5,15,'#f5b942');set(6,14,'#f5b942')},
-  headphones:()=>{for(let y=0;y<=9;y++)for(let x=0;x<N;x++){const d=((x+.5-CX)/7.2)**2+((y+.5-9)/7.4)**2;if(d<=1&&d>=.78)set(x,y,'#2a2a34')}rect(4,9,5,13,(x,y)=>x===4?'#16100c':L.hatC);rect(18,9,19,13,(x,y)=>x===19?'#16100c':L.hatC)}};
+ /* 10. ears and mouth props */
+ const E={stud:()=>{set(9,22,'#f5b942');set(9,21,'#fff2b0')},hoop:()=>{pts([[9,22],[8,23],[8,24],[9,25],[10,24],[10,23]],'#f5b942');set(8,23,'#fff2b0')},
+  headphones:()=>{for(let y=0;y<=16;y++)for(let x=0;x<N;x++){const d=((x+.5-CX)/11.8)**2+((y+.5-16)/12.8)**2;if(d<=1&&d>=.84)set(x,y,y<4?'#3a3a48':'#2a2a34')}rect(6,15,9,23,(x,y)=>x===6?'#16100c':(x===7?L.hatC:pShade(L.hatC,-.25)));rect(30,15,33,23,(x,y)=>x===33?'#16100c':(x===32?pShade(L.hatC,-.25):L.hatC))}};
  if(E[L.ear])E[L.ear]();
- const MA={joint:()=>{[[14,15],[15,15],[16,14],[17,14]].forEach(([x,y])=>set(x,y,'#f4efe6'));set(18,14,'#ff7a2a');set(19,13,'#ffb04a');[[19,11],[20,10],[19,9],[20,8]].forEach(([x,y],k)=>set(x,y,k%2?'#9a90a8':'#cfc3dc'))},
-  blunt:()=>{[[14,15],[15,15],[16,15],[17,14],[18,14]].forEach(([x,y])=>{set(x,y,'#7a4a24');set(x,y+1,'#5a3418')});set(19,14,'#ff7a2a');set(19,15,'#c8401a');[[20,12],[21,11],[20,10]].forEach(([x,y])=>set(x,y,'#b8aec4'))},
-  pipe:()=>{[[14,15],[15,16],[16,16]].forEach(([x,y])=>set(x,y,'#3a2414'));rect(17,14,18,17,(x,y)=>x===18?'#5a3418':'#7a4a24');set(17,13,'#ff7a2a');[[18,11],[17,10],[18,9]].forEach(([x,y])=>set(x,y,'#b8aec4'))},
-  lollipop:()=>{[[14,15],[15,15],[16,15]].forEach(([x,y])=>set(x,y,'#f4f4f8'));ell(18.5,14.5,1.8,1.8,(x,y)=>(x+y)%2?'#e84a8a':'#f7bcd9')},
-  toothpick:()=>{[[14,15],[15,15],[16,14],[17,14]].forEach(([x,y])=>set(x,y,'#d8b880'))}};
+ const smoke=(x,y)=>{pts([[x,y],[x+1,y-1],[x+1,y-2],[x,y-3],[x,y-4],[x+1,y-5],[x+2,y-6],[x+2,y-7],[x+1,y-8]],'#cfc3dc');pts([[x+2,y-2],[x+3,y-4],[x+2,y-9],[x+3,y-10]],'#9a90a8')};
+ const MA={joint:()=>{for(let k=0;k<7;k++){set(23+k,25-Math.round(k*.45),k<1?'#c8a070':(k%2?'#f4efe6':'#e8e2d6'));set(23+k,26-Math.round(k*.45),'#d8d2c6')}set(30,22,'#ff7a2a');set(30,23,'#c8401a');set(31,22,'#ffb04a');smoke(31,20)},
+  blunt:()=>{for(let k=0;k<8;k++){set(23+k,25-Math.round(k*.35),'#7a4a24');set(23+k,26-Math.round(k*.35),'#5a3418');if(k%3===0)set(23+k,25-Math.round(k*.35),'#8a5a30')}set(31,22,'#ff7a2a');set(31,23,'#c8401a');set(32,22,'#a8a0a0');smoke(32,20)},
+  pipe:()=>{line(23,26,27,27,'#3a2414');rect(27,23,31,28,(x,y)=>x===31?'#4a2c18':(x===27?'#8a5a30':'#6a4228'));rect(28,23,30,23,'#1a1008');set(29,22,'#ff7a2a');smoke(29,20)},
+  lollipop:()=>{line(23,25,28,25,'#f4f4f8');ell(31,24.5,3,3,(x,y)=>{const a=Math.atan2(y+.5-24.5,x+.5-31),d=Math.hypot(x+.5-31,y+.5-24.5);return Math.floor(a*1.5+d*1.2+10)%2?'#e84a8a':'#f7bcd9'})},
+  toothpick:()=>{for(let k=0;k<6;k++)set(23+k,25-Math.round(k*.4),'#d8b880')}};
  if(MA[L.mouthAcc])MA[L.mouthAcc]();
  /* 11. outline */
- const o=g.slice();for(let y=0;y<N;y++)for(let x=0;x<N;x++){const i=y*N+x;if(g[i])continue;if((x>0&&g[i-1])||(x<N-1&&g[i+1])||(y>0&&g[i-N])||(y<N-1&&g[i+N]&&y<N-1))o[i]='#09060c'}
+ const o=g.slice();for(let y=0;y<N;y++)for(let x=0;x<N;x++){const i=y*N+x;if(g[i])continue;if((x>0&&g[i-1])||(x<N-1&&g[i+1])||(y>0&&g[i-N])||(y<N-1&&g[i+N]))o[i]='#09060c'}
  return o;
-}
-/* old 16px looks -> new looks */
-function convertLook(o,fem){
- const m={body:fem?'fem':'masc',skin:o.skin,hairC:o.hc||'#3a2414',shirtC:o.shirt||'#3a6ab0'};
- m.hair=({messy:'messy',long:'long',afro:'afro',bun:'bun',short:'short',bald:'bald'})[o.hair]||(o.hat?'short':'bald');
- m.beard=({stubble:'stubble',stache:'mustache',full:'full'})[o.beard]||'none';
- if(o.hat){m.hat=({cap:'capback',bucket:'bucket',beanie:'beanie'})[o.hat];m.hatC=o.hatC}else if(o.band){m.hat='headband';m.hatC=o.band}
- if(o.glasses){m.glasses=o.glasses==='round'?'round':'shades';m.glassC=o.gc||(o.glasses==='shades'?'#3a3a44':'#16100c')}
- if(o.joint)m.mouthAcc='joint';
- return m;
 }
 
 function drawFace(cv,look){cv.getContext('2d').putImageData(toImage(portrait(look),PN),0,0)}
@@ -1017,20 +1045,20 @@ setTimeout(flipCoin,1200);
 
 
 function buy(i){if(!st.lic[P[i].dept])return;const n=buyN(i),c=costN(i,n);if(n<1||c>st.cash)return;const before=speed(i),mb=menuLevel(P[i].dept).k,first=!st.owned[i];
- st.cash-=c;st.owned[i]+=n;
+ st.cash-=c;st.owned[i]+=n;st.lastBuy=st.clock;
  if(first){toast(`New on the menu: ${P[i].name}`);SFX.level()}
  else if(speed(i)>before){toast(`${P[i].name} runs ${speed(i)/before}× faster`);SFX.level()}
  else SFX.buy();
- if(menuLevel(P[i].dept).k>mb){toast(`Full Menu! ${DEPTS[P[i].dept].name} profit ×2`);SFX.license()}
+ if(menuLevel(P[i].dept).k>mb){toast(`Full Menu! ${DEPTS[P[i].dept].name} profit ×1.5`);SFX.license()}
  ui(true)}
 
 /* license card */
 const licEl=$('#license');
 function renderLicense(){const d=DEPTS[dept];
  const items=DIDX[dept];
- licEl.innerHTML=`<h3>${d.sign} license</h3><p>${d.blurb}</p><div class="row-sprites">${items.map(()=>'<canvas class="px" width="32" height="32"></canvas>').join('')}</div><p class="lreq"></p><button class="buy lbtn"><span>Buy license</span><b>${money(d.license)}</b></button>`;
+ licEl.innerHTML=`<h3>${d.sign} license</h3><p>${d.blurb}</p><div class="row-sprites">${items.map(()=>'<canvas class="px" width="32" height="32"></canvas>').join('')}</div><p class="lreq"></p><button class="buy lbtn"><span>Buy license</span><b>${money(licCost(dept))}</b></button>`;
  licEl.querySelectorAll('canvas').forEach((cv,k)=>{const o=reg(cv,items[k]);o.sil=true;paint(o,0)});
- licEl.querySelector('.lbtn').addEventListener('click',()=>{if(st.cash>=d.license&&st.life>=d.unlock&&!st.lic[dept]){st.cash-=d.license;st.lic[dept]=true;SFX.license();toast(`${d.sign} is open`);buildDealers();buildUpgrades();ui(true)}});
+ licEl.querySelector('.lbtn').addEventListener('click',()=>{if(st.cash>=licCost(dept)&&st.life>=d.unlock&&!st.lic[dept]){st.cash-=licCost(dept);st.lic[dept]=true;st.lastBuy=st.clock;SFX.license();toast(`${d.sign} is open`);buildDealers();buildUpgrades();ui(true)}});
  licEl._d=dept}
 
 /* dealers */
@@ -1040,10 +1068,10 @@ function buildDealers(){dealersEl.innerHTML='';dcards=[];
   if(!st.lic[j]){const n=document.createElement('div');n.className='note';n.textContent=`Open the ${d.sign} to meet these ${DIDX[j].length} dealers.`;g.append(n);return}
   const grid=document.createElement('div');grid.className='grid';g.append(grid);
   for(const i of DIDX[j]){const dd=P[i].d;const el=document.createElement('div');el.className='card';
-   el.innerHTML=`<div class="head"><div class="face"><canvas class="px" width="24" height="24"></canvas></div><div><h3>${dd.name}</h3><div class="runs"><canvas class="px" width="32" height="32"></canvas>Runs ${P[i].name}</div></div></div><p>${dd.bio}</p><div class="act"></div>`;
+   el.innerHTML=`<div class="head"><div class="face"><canvas class="px" width="40" height="40"></canvas></div><div><h3>${dd.name}</h3><div class="runs"><canvas class="px" width="32" height="32"></canvas>Runs ${P[i].name}</div></div></div><p>${dd.bio}</p><div class="act"></div>`;
    grid.append(el);drawFace(el.querySelector('.face canvas'),dd.look);const rc=reg(el.querySelector('.runs canvas'),i);
    const btn=document.createElement('button');btn.className='buy';btn.innerHTML=`<span class="hl">Hire</span><b>${money(dd.cost)}</b>`;
-   btn.addEventListener('click',()=>{if(st.cash>=dd.cost&&st.owned[i]&&!st.dealer[i]){st.cash-=dd.cost;st.dealer[i]=true;SFX.hire();toast(`${dd.name} is on the clock`);ui(true)}});
+   btn.addEventListener('click',()=>{if(st.cash>=dd.cost&&st.owned[i]&&!st.dealer[i]){st.cash-=dd.cost;st.dealer[i]=true;st.lastBuy=st.clock;SFX.hire();toast(`${dd.name} is on the clock`);ui(true)}});
    const badge=document.createElement('span');badge.className='badge';badge.textContent='On the clock';
    el.querySelector('.act').append(btn,badge);dcards.push({i,el,btn,badge,rc,hl:btn.querySelector('.hl')})}
  })}
@@ -1056,9 +1084,9 @@ function buildUpgrades(){recalc();upEl.innerHTML='';upRows=[];
  for(const u of list){const el=document.createElement('div');el.className='urow';
   const tname=u.target>=0?P[u.target].name:u.all?`All ${DEPTS[u.dept].name.toLowerCase()}`:'Everything';
   const ic=u.target>=0?'<canvas class="px" width="32" height="32"></canvas>':u.all?DEPTS[u.dept].name.slice(0,5).toUpperCase():'ALL';
-  el.innerHTML=`<div class="ic">${ic}</div><div class="tx"><b>${u.name}</b><span>${tname} profit ×3</span></div><button class="buy"><b>${money(u.cost)}</b></button>`;
+  el.innerHTML=`<div class="ic">${ic}</div><div class="tx"><b>${u.name}</b><span>${tname} profit ×3</span></div><button class="buy"><b>${money(upCost(u))}</b></button>`;
   upEl.append(el);if(u.target>=0)reg(el.querySelector('canvas'),u.target);
-  const b=el.querySelector('.buy');b.addEventListener('click',()=>{if(st.cash>=u.cost){st.cash-=u.cost;st.up.push(u.id);SFX.upgrade();toast(`${u.name}: ${tname} ×3`);buildUpgrades();ui(true)}});
+  const b=el.querySelector('.buy');b.addEventListener('click',()=>{const uc=upCost(u);if(st.cash>=uc){st.cash-=uc;st.up.push(u.id);st.lastBuy=st.clock;SFX.upgrade();toast(`${u.name}: ${tname} ×3`);buildUpgrades();ui(true)}});
   upRows.push({u,b})}
 }
 
@@ -1072,11 +1100,12 @@ function syncMode(){document.querySelectorAll('#buybar button').forEach(x=>x.set
 const wk=$('#walkin'),wkCv=wk.querySelector('canvas'),wkT=wk.querySelector('b'),wkS=wk.querySelector('.wt span'),wkL=wk.querySelector('.tl');let wkSeed=-1;
 const SKINS=['#f2c4a0','#e8b892','#d9a37c','#c48a62','#a8724c','#8a5a3a','#6a4228'],HCS=['#1a1210','#3a2a1a','#7a4a22','#c9a050','#e8e8f0','#c86a2a','#b896ff'],SHIRTS=['#e86a8a','#5ab4c2','#f5b942','#3a7a5a','#6a3aa8','#e8ecf4','#c42a3a'];
 function walkLook(seed){const r=rng(seed),pick=a=>{const v=a[Math.floor(r()*a.length)];return Array.isArray(v)?v[0]:v};
- return {body:pick(POPT.body),skin:pick(POPT.skin),hair:pick(POPT.hair),hairC:pick(POPT.hairC.slice(0,9)),beard:r()<.6?'none':pick(POPT.beard),eyes:pick(['sleepy','red','normal','happy','wide']),eyeC:pick(POPT.eyeC),mouth:pick(['smile','grin','laugh','o','smirk']),
+ return {brows:pick(POPT.brows),nose:pick(POPT.nose),marks:r()<.7?'none':pick(['freckles','blush','mole','bandaid','scar']),body:pick(POPT.body),skin:pick(POPT.skin),hair:pick(POPT.hair),hairC:pick(POPT.hairC.slice(0,9)),beard:r()<.6?'none':pick(POPT.beard),eyes:pick(['sleepy','red','normal','happy','wide']),eyeC:pick(POPT.eyeC),mouth:pick(['smile','grin','laugh','o','smirk']),
   hat:r()<.55?'none':pick(['beanie','cap','capback','bucket','headband','bandana','fedora']),hatC:pick(POPT.colors),glasses:r()<.65?'none':pick(['round','square','shades','aviator','heart']),glassC:pick(POPT.colors),
   shirt:pick(['tee','hoodie','tank','hawaiian','tiedye','jacket','jersey']),shirtC:pick(POPT.colors),shirt2:pick(POPT.colors),mouthAcc:r()<.8?'none':pick(['joint','lollipop','toothpick']),neck:r()<.8?'none':pick(['chain','beads','scarf']),ear:r()<.85?'none':pick(['stud','hoop','headphones'])}}
 wk.addEventListener('click',()=>{const m=serveWalk();if(m){toast(m);SFX.serve()}ui(true)});
 
+$('#buffs').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)document.querySelector('[data-tab=clout]').click()});
 /* sound toggles */
 const sfxb=$('#sfxb'),musb=$('#musb');
 function sndUI(){sfxb.innerHTML=SFX.on?ICONS.sfxOn:ICONS.sfxOff;sfxb.classList.toggle('on',SFX.on);sfxb.setAttribute('aria-pressed',SFX.on);musb.innerHTML=ICONS.music;musb.classList.toggle('on',SFX.music);musb.setAttribute('aria-pressed',SFX.music)}
@@ -1109,7 +1138,8 @@ function ui(force){
  setT($('#rate'),money(perSec())+' / sec from dealers');
  // buffs
  const bs=st.buffs.filter(b=>b.until>st.clock).map(b=>`${b.label} · ${Math.ceil(b.until-st.clock)}s`).join('|');
- const be=$('#buffs');if(be._t!==bs){be._t=bs;be.innerHTML=bs?bs.split('|').map(x=>`<span class="buff">${x}</span>`).join(''):''}
+ const gH=cloutGain(),hint=gH>=Math.max(10,st.clout)&&(st.clock-(st.lastBuy||0))>240;const bs2=bs+(hint?'|@'+whole(gH):'');
+ const be=$('#buffs');if(be._t!==bs2){be._t=bs2;be.innerHTML=bs2?bs2.split('|').filter(Boolean).map(x=>x[0]==='@'?`<button class="buff hintb" data-go="clout">Time to go legit? +${x.slice(1)} Clout</button>`:`<span class="buff">${x}</span>`).join(''):''}
  // walk-in
  if(st.walk){const e=EVENTS.find(x=>x.id===st.walk.id);wk.hidden=false;if(wkSeed!==st.walk.seed){wkSeed=st.walk.seed;SFX.walkin();drawFace(wkCv,walkLook(wkSeed));wkT.textContent=e.title;wkS.textContent=e.text}
   wkL.style.width=Math.max(0,(st.walk.until-st.clock)/15*100)+'%'}else wk.hidden=true;
@@ -1118,11 +1148,11 @@ function ui(force){
  const D=DEPTS[dept],lic=st.lic[dept];
  setT($('#dname'),D.sign);
  const ml=menuLevel(dept);
- const mm=$('#dmenu');const mtxt=lic?`Full Menu ×${2**ml.k}`+(ml.next?` · stock every ${D.name.toLowerCase()} item to ${ml.next} for ×2 (lowest: ${whole(ml.mn)})`:' · maxed'):'';
- if(mm._t!==mtxt){mm._t=mtxt;mm.innerHTML=lic?`<b>Full Menu ×${2**ml.k}</b>`+(ml.next?` · stock every item to ${ml.next} for ×2 (lowest: ${whole(ml.mn)})`:' · maxed'):''}
+ const mm=$('#dmenu');const fm=v=>(+v.toFixed(2)).toString(),mtxt=lic?`Full Menu ×${fm(1.5**ml.k)}`+(ml.next?` · stock every ${D.name.toLowerCase()} item to ${ml.next} for ×1.5 (lowest: ${whole(ml.mn)})`:' · maxed'):'';
+ if(mm._t!==mtxt){mm._t=mtxt;mm.innerHTML=lic?`<b>Full Menu ×${fm(1.5**ml.k)}</b>`+(ml.next?` · stock every item to ${ml.next} for ×1.5 (lowest: ${whole(ml.mn)})`:' · maxed'):''}
  $('#buybar').hidden=!lic||tab!=='shop';
  licEl.hidden=lic;
- if(!lic){if(licEl._d!==dept)renderLicense();const ok=st.life>=D.unlock;licEl.querySelector('.lreq').textContent=ok?`Opens ${DIDX[dept].length} new products and their dealers.`:`Unlocks after ${money(D.unlock)} in lifetime sales (you're at ${money(st.life)}).`;licEl.querySelector('.lbtn').disabled=!ok||st.cash<D.license}
+ if(!lic){if(licEl._d!==dept)renderLicense();const ok=st.life>=D.unlock;licEl.querySelector('.lreq').textContent=ok?`Opens ${DIDX[dept].length} new products and their dealers.`:`Unlocks after ${money(D.unlock)} in lifetime sales (you're at ${money(st.life)}).`;licEl.querySelector('.lbtn').disabled=!ok||st.cash<licCost(dept)}
  let dDot=false,uDot=false;
  for(let i=0;i<N;i++){const R=rows[i],own=st.owned[i],p=P[i];
   R.el.hidden=p.dept!==dept||!lic;
@@ -1148,14 +1178,14 @@ function ui(force){
  }
  for(const c of dcards){const i=c.i,own=st.owned[i],d=st.dealer[i];c.el.classList.toggle('hired',d);c.btn.hidden=d;c.badge.hidden=!d;c.btn.disabled=d||!own||st.cash<P[i].d.cost;
   setT(c.hl,own?'Hire':`Stock ${P[i].name} first ·`);if(c.rc.sil!==!own){c.rc.sil=!own;paint(c.rc,animTick)}}
- for(const r of upRows){r.b.disabled=st.cash<r.u.cost;if(!r.b.disabled)uDot=true}
+ for(const r of upRows){r.b.disabled=st.cash<upCost(r.u);if(!r.b.disabled)uDot=true}
  const g=cloutGain();
  document.querySelector('[data-tab=dealers] .dot').hidden=!dDot||tab==='dealers';
  document.querySelector('[data-tab=upgrades] .dot').hidden=!uDot||tab==='upgrades';
  document.querySelector('[data-tab=clout] .dot').hidden=!(g>=Math.max(10,st.clout*.5))||tab==='clout';
  setT($('#cl-have'),whole(st.clout));setT($('#cl-bonus'),'+'+whole(st.clout*2)+'%');
  setT($('#cl-gain'),whole(g));setT($('#cl-life'),money(st.life));setT($('#cl-walk'),whole(st.walks));setT($('#cl-resets'),whole(st.resets));
- const lb=$('#legit');lb.disabled=g<1;if(!lb.classList.contains('arm'))setT(lb,g<1?`Go legit (next Clout at ${money(((st.clout+1)/150)**2*1e15)} lifetime)`:`Go legit for +${whole(g)} Clout`);
+ const lb=$('#legit');lb.disabled=g<1;if(!lb.classList.contains('arm'))setT(lb,g<1?`Go legit (first Clout at ${money(nextCloutAt())} this run)`:`Go legit for +${whole(g)} Clout`);
 }
 function bars(){for(let i=0;i<N;i++){const R=rows[i];if(R.el.hidden)continue;const t=cyc(i),active=st.owned[i]&&(st.dealer[i]||st.going[i]);
  const blur=st.dealer[i]&&t<.2;R.bar.classList.toggle('blur',!!blur);if(!blur)R.fill.style.width=(active?st.prog[i]*100:0)+'%'}}
