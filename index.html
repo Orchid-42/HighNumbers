@@ -149,7 +149,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ulist{display:flex;flex-direction:column;gap:6px}
 .urow{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);padding:7px 10px}
 .urow .ic{width:40px;height:40px;flex:0 0 auto;background:var(--well);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-size:15px;color:var(--gold);text-align:center;line-height:.9}
+.urow .ic{position:relative}
 .urow .ic canvas{width:32px;height:32px}
+.urow .ic .kb{position:absolute;right:-5px;bottom:-5px;width:20px;height:20px;display:grid;place-items:center;border:1px solid var(--hard);color:var(--hard)}
+.urow .ic .kb svg{width:14px;height:12px}
+.kb.profit{background:var(--gold)}.kb.speed{background:var(--violet)}.kb.cost{background:var(--pink)}.kb.walkin{background:#8fd0a8}.kb.offline{background:var(--smoke)}
+.urow .tx span em{font-style:normal;color:var(--fg)}
+.urow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;column-gap:12px;row-gap:4px;align-items:center}
+.urow .tx{min-width:0}
+.urow .buy{white-space:nowrap!important;flex-wrap:nowrap!important}
+@media (max-width:520px){.urow{grid-template-columns:40px minmax(0,1fr)}.urow .ic{grid-row:span 2}.urow .buy{grid-column:2;justify-self:start}}
 .urow .tx{flex:1;min-width:0}
 .urow .tx b{font-family:var(--display);font-weight:400;font-size:20px;display:block;line-height:1.05}
 .urow .tx span{font-size:11px;color:var(--muted)}
@@ -619,13 +628,22 @@ P.forEach((p,i)=>{const o=DEALER_LOOKS[i];if(o){p.d.name=o.name;p.d.bio=o.bio;p.
 const N=P.length,ND=DEPTS.length;
 const DIDX=DEPTS.map((_,d)=>P.map((p,i)=>p.dept===d?i:-1).filter(i=>i>=0));
 
-const TIERS=[['Grow Lights','Hydro Setup','Smell-Proof Jars','Craft Label'],['Ice Water Wash','Rosin Press','Parchment Bulk Buy','Hashmaker Seal'],['Commercial Oven','Decarb Station','Cute Packaging','Dosing Lab'],['Rolling Machine','Gold Filters','Tin Cases','Lounge Couches']];
-const DUPS=[['Display Case','Menu Board Redesign','Award-Winning Line'],['Glass Counter','Hash Tasting Night','Cannabis Cup Win'],['Bakery Window','Late-Night Delivery','Edible of the Year'],['Velvet Rope','DJ on Weekends','Celebrity Lounge']];
-const GLOBALS=[['Neon OPEN Sign',1e8],['Loyalty Punch Cards',1e13],['Delivery App',1e18],['Highway Billboard',1e24],['Franchise Rights',1e30],['Space Dispensary',1e36],['Moon Franchise',1e42],['Galactic Chain',1e50],['Multiverse Menu',1e60]];
+/* upgrade kinds: profit ×3 · speed ×2 · cost −25% · walk-ins twice as often · longer offline earnings */
+const TIERS=[[['Grow Lights','speed'],['Hydro Setup','profit'],['Bulk Seed Deal','cost'],['Craft Label','profit']],
+ [['Ice Water Wash','profit'],['Rosin Press','speed'],['Parchment Bulk Buy','cost'],['Hashmaker Seal','profit']],
+ [['Commercial Oven','speed'],['Decarb Station','profit'],['Wholesale Flour','cost'],['Cute Packaging','profit']],
+ [['Rolling Machine','speed'],['Gold Filters','profit'],['Bulk Papers','cost'],['Lounge Couches','profit']]];
+const DUPS=[[['Display Case','profit'],['Extra Grow Tent','speed'],['Award-Winning Line','profit'],['Seed Bank Membership','cost']],
+ [['Glass Counter','profit'],['Second Press','speed'],['Cannabis Cup Win','profit'],['Hash Co-op','cost']],
+ [['Bakery Window','profit'],['Late-Night Delivery','speed'],['Edible of the Year','profit'],['Sugar Supplier','cost']],
+ [['Velvet Rope','profit'],['Express Lane','speed'],['Celebrity Lounge','profit'],['Paper Factory Deal','cost']]];
+const GLOBALS=[['Neon OPEN Sign',1e8,'profit'],['Loyalty Punch Cards',1e13,'walkin'],['Delivery App',1e18,'speed'],['Highway Billboard',1e24,'profit'],['Franchise Rights',1e30,'profit'],['Space Dispensary',1e36,'speed'],['Moon Franchise',1e42,'profit'],['Galactic Chain',1e50,'profit'],['Multiverse Menu',1e60,'profit'],
+ ['Night Safe',5e9,'offline'],['Wholesale Club',1e21,'cost'],['Word of Mouth',1e27,'walkin'],['Vault Upgrade',1e33,'offline'],['Hyperspace Lanes',1e45,'speed']];
+const KIND={profit:{x:3,txt:'profit ×3',short:'×3'},speed:{x:2,txt:'2× faster',short:'2× speed'},cost:{x:.75,txt:'costs 25% less',short:'−25% cost'},walkin:{txt:'walk-ins come twice as often'},offline:{txt:'offline earnings last 8h longer'}};
 const UPGRADES=[];
-P.forEach((p,i)=>TIERS[p.dept].forEach((t,k)=>UPGRADES.push({id:`s${i}t${k}`,name:t,target:i,dept:p.dept,cost:p.cost*25e3*Math.pow(1e5,k)})));
-DEPTS.forEach((d,j)=>DUPS[j].forEach((n,k)=>UPGRADES.push({id:`d${j}t${k}`,name:n,target:-1,dept:j,all:true,cost:d.upB*Math.pow(1e6,k)})));
-GLOBALS.forEach(([n,c],k)=>UPGRADES.push({id:`g${k}`,name:n,target:-1,dept:-1,cost:c}));
+P.forEach((p,i)=>TIERS[p.dept].forEach(([t,kind],k)=>UPGRADES.push({id:`s${i}t${k}`,name:t,kind,target:i,dept:p.dept,cost:p.cost*25e3*Math.pow(1e5,k)*(kind==='cost'?.5:1)})));
+DEPTS.forEach((d,j)=>DUPS[j].forEach(([n,kind],k)=>UPGRADES.push({id:`d${j}t${k}`,name:n,kind,target:-1,dept:j,all:true,cost:d.upB*Math.pow(1e6,k===3?1.5:k)})));
+GLOBALS.forEach(([n,c,kind],k)=>UPGRADES.push({id:`g${k}`,name:n,kind,target:-1,dept:-1,cost:c}));
 UPGRADES.sort((a,b)=>a.cost-b.cost);
 const UPBY=Object.fromEntries(UPGRADES.map(u=>[u.id,u]));
 const MILES=[25,50,100,200,300,400,500,600,700,800,900,1000];
@@ -639,10 +657,18 @@ function pad(o){const f=fresh();for(const k of ['owned','prog','going','dealer',
 
 /* ---------- economy ---------- */
 let UPM,DUP,GUP;
-function recalc(){UPM=Array(N).fill(1);DUP=Array(ND).fill(1);GUP=1;for(const id of st.up){const u=UPBY[id];if(!u)continue;if(u.target>=0)UPM[u.target]*=3;else if(u.all)DUP[u.dept]*=3;else GUP*=3}}
+let SPD,CST,WALK=1,OFFH=8;
+function recalc(){UPM=Array(N).fill(1);DUP=Array(ND).fill(1);GUP=1;SPD=Array(N).fill(1);CST=Array(N).fill(1);WALK=1;OFFH=8;
+ const hits=u=>u.target>=0?[u.target]:u.all?DIDX[u.dept]:P.map((_,i)=>i);
+ for(const id of st.up){const u=UPBY[id];if(!u)continue;const k=u.kind||'profit';
+  if(k==='profit'){if(u.target>=0)UPM[u.target]*=3;else if(u.all)DUP[u.dept]*=3;else GUP*=3}
+  else if(k==='speed')hits(u).forEach(i=>SPD[i]*=2);
+  else if(k==='cost')hits(u).forEach(i=>CST[i]*=.75);
+  else if(k==='walkin')WALK*=2;
+  else if(k==='offline')OFFH+=8}}
 const speed=i=>{let k=0;for(const m of MILES)if(st.owned[i]>=m)k++;return 2**k};
 function buff(kind,d){let m=1;for(const b of st.buffs)if(b.kind===kind&&b.until>st.clock&&(b.dept==null||b.dept===d))m*=b.x;return m}
-const cyc=i=>P[i].time/speed(i)/buff('speed',P[i].dept);
+const cyc=i=>P[i].time/speed(i)/SPD[i]/buff('speed',P[i].dept);
 const syn=i=>P[i].src>=0?1+.01*st.owned[P[i].src]:1;
 const menuLevel=d=>{let mn=Infinity;for(const i of DIDX[d])mn=Math.min(mn,st.owned[i]);let k=0;for(const m of MENU)if(mn>=m)k++;return {k,mn,next:MENU[k]}};
 const menuMult=d=>1.5**menuLevel(d).k;
@@ -653,11 +679,11 @@ const upCost=u=>u.cost*(u.target<0?SCALE_UP():1);
 const cmult=()=>1+.02*st.clout;
 const mult=(i,noBuff)=>UPM[i]*DUP[P[i].dept]*GUP*syn(i)*menuMult(P[i].dept)*cmult()*(noBuff?1:buff('mult',P[i].dept));
 const rev=(i,noBuff)=>P[i].rev*PACE*Math.max(st.owned[i],1)*mult(i,noBuff);
-const costN=(i,n)=>{const s=P[i];return s.cost*s.coef**st.owned[i]*(s.coef**n-1)/(s.coef-1)};
-const maxN=i=>{const s=P[i];const b=s.cost*s.coef**st.owned[i];return Math.max(0,Math.floor(Math.log(st.cash*(s.coef-1)/b+1)/Math.log(s.coef)))};
+const costN=(i,n)=>{const s=P[i];return CST[i]*s.cost*s.coef**st.owned[i]*(s.coef**n-1)/(s.coef-1)};
+const maxN=i=>{const s=P[i];const b=CST[i]*s.cost*s.coef**st.owned[i];return Math.max(0,Math.floor(Math.log(st.cash*(s.coef-1)/b+1)/Math.log(s.coef)))};
 const nextMile=o=>MILES.find(m=>m>o)||(Math.floor(o/100)+1)*100;
 const buyN=i=>st.mode==='max'?Math.max(1,maxN(i)):st.mode==='next'?(st.owned[i]?nextMile(st.owned[i])-st.owned[i]:1):+st.mode;
-const perSec=noBuff=>{let r=0;for(let i=0;i<N;i++)if(st.dealer[i]&&st.owned[i])r+=rev(i,noBuff)/(noBuff?P[i].time/speed(i):cyc(i));return r};
+const perSec=noBuff=>{let r=0;for(let i=0;i<N;i++)if(st.dealer[i]&&st.owned[i])r+=rev(i,noBuff)/(noBuff?P[i].time/speed(i)/SPD[i]:cyc(i));return r};
 /* Clout from this run's sales, cube root: steady 2-3x steps instead of a runaway */
 const cloutGain=()=>Math.max(0,Math.floor(150*Math.cbrt((st.run||0)/1e15)));
 const nextCloutAt=()=>((cloutGain()+1)/150)**3*1e15;
@@ -678,12 +704,12 @@ const EVENTS=[
 function addBuff(kind,dept,x,sec,label){st.buffs.push({kind,dept,x,until:st.clock+sec,label})}
 function spawnWalk(){const pool=EVENTS.filter(e=>e.ok());let tot=pool.reduce((a,e)=>a+e.w,0),r=Math.random()*tot;let e=pool[0];for(const x of pool){r-=x.w;if(r<=0){e=x;break}}
  st.walk={id:e.id,until:st.clock+15,seed:Math.floor(Math.random()*1e6)}}
-function serveWalk(){if(!st.walk)return null;const e=EVENTS.find(x=>x.id===st.walk.id);st.walk=null;st.walks++;st.nextWalk=st.clock+40+Math.random()*50;return e.run()}
+function serveWalk(){if(!st.walk)return null;const e=EVENTS.find(x=>x.id===st.walk.id);st.walk=null;st.walks++;st.nextWalk=st.clock+(40+Math.random()*50)/WALK;return e.run()}
 
 function tick(dt,onHarvest){
  st.clock+=dt;
  if(st.buffs.length&&st.buffs.some(b=>b.until<=st.clock))st.buffs=st.buffs.filter(b=>b.until>st.clock);
- if(st.walk&&st.walk.until<=st.clock){st.walk=null;st.nextWalk=st.clock+40+Math.random()*50}
+ if(st.walk&&st.walk.until<=st.clock){st.walk=null;st.nextWalk=st.clock+(40+Math.random()*50)/WALK}
  if(!st.walk&&st.clock>=st.nextWalk)spawnWalk();
  for(let i=0;i<N;i++){if(!st.owned[i]||!(st.dealer[i]||st.going[i]))continue;
   const t=cyc(i);st.prog[i]+=dt/t;
@@ -1003,6 +1029,12 @@ const SFX=(()=>{
 })();
 function pxIcon(rows){const h=rows.length,w=rows[0].length;let r='';rows.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch==='#')r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02"/>`}));
  return `<svg viewBox="0 0 ${w} ${h}" width="${w*2}" height="${h*2}" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
+const KICON={
+ profit:pxIcon(['...##...','..####..','.##..##.','.##.....','..####..','.....##.','.##..##.','..####..','...##...']),
+ speed:pxIcon(['....###.','...###..','..###...','.######.','...###..','..###...','.###....','.##.....']),
+ cost:pxIcon(['.#####..','.#...##.','.#.#..##','.#....#.','.#...#..','.#..#...','.#.#....','.##.....']),
+ walkin:pxIcon(['..##....','..##....','.####...','#.##.#..','..##....','..##....','.#..#...','.#..#...']),
+ offline:pxIcon(['..####..','.##.....','##......','##......','##......','.##.....','..####..'])};
 const ICONS={
  user:pxIcon(['....####....','...######...','...######...','...######...','....####....','............','..########..','.##########.','.##########.','.##########.']),
  sfxOn:pxIcon(['....#.......','...##...#...','.####..#.#..','#####.#...#.','#####.#...#.','#####.#...#.','.####..#.#..','...##...#...','....#.......']),
@@ -1082,11 +1114,13 @@ function buildUpgrades(){recalc();upEl.innerHTML='';upRows=[];
  const list=UPGRADES.filter(u=>!st.up.includes(u.id)&&(u.dept<0||st.lic[u.dept])).slice(0,16);
  if(!list.length){upEl.innerHTML='<div class="note">Nothing left to buy right now. Open a new department for more.</div>';return}
  for(const u of list){const el=document.createElement('div');el.className='urow';
-  const tname=u.target>=0?P[u.target].name:u.all?`All ${DEPTS[u.dept].name.toLowerCase()}`:'Everything';
-  const ic=u.target>=0?'<canvas class="px" width="32" height="32"></canvas>':u.all?DEPTS[u.dept].name.slice(0,5).toUpperCase():'ALL';
-  el.innerHTML=`<div class="ic">${ic}</div><div class="tx"><b>${u.name}</b><span>${tname} profit ×3</span></div><button class="buy"><b>${money(upCost(u))}</b></button>`;
-  upEl.append(el);if(u.target>=0)reg(el.querySelector('canvas'),u.target);
-  const b=el.querySelector('.buy');b.addEventListener('click',()=>{const uc=upCost(u);if(st.cash>=uc){st.cash-=uc;st.up.push(u.id);st.lastBuy=st.clock;SFX.upgrade();toast(`${u.name}: ${tname} ×3`);buildUpgrades();ui(true)}});
+  const kind=u.kind||'profit',K=KIND[kind];
+  const tname=(kind==='walkin'||kind==='offline')?'':u.target>=0?P[u.target].name:u.all?`All ${DEPTS[u.dept].name.toLowerCase()}`:'Everything';
+  const desc=tname?`${tname}: <em>${K.txt}</em>`:`<em>${K.txt[0].toUpperCase()+K.txt.slice(1)}</em>`;
+  el.innerHTML=`<div class="ic"><canvas class="px" width="32" height="32"></canvas><i class="kb ${kind}">${KICON[kind]}</i></div><div class="tx"><b>${u.name}</b><span>${desc}</span></div><button class="buy"><b>${money(upCost(u))}</b></button>`;
+  upEl.append(el);const icv=el.querySelector('canvas');
+  if(u.target>=0)reg(icv,u.target);else if(u.all)reg(icv,DEPTS[u.dept].icon);else icv.getContext('2d').putImageData(COIN_IMG.leaf,0,0);
+  const b=el.querySelector('.buy');b.addEventListener('click',()=>{const uc=upCost(u);if(st.cash>=uc){st.cash-=uc;st.up.push(u.id);st.lastBuy=st.clock;SFX.upgrade();toast(`${u.name}: ${tname?tname+' ':''}${K.txt}`);buildUpgrades();ui(true)}});
   upRows.push({u,b})}
 }
 
@@ -1294,7 +1328,7 @@ async function cloudSync(force){
    const rows=await sb(`/rest/v1/saves?select=data&game=eq.${CLOUD.game}&user_id=eq.${AUTH.user.id}`);
    const remote=rows&&rows[0]?rows[0].data:null;
    if(remote&&!better(st,remote)){
-    const sec=Math.min(Math.max(0,(Date.now()-(remote.t||Date.now()))/1000),8*3600);
+    const sec=Math.min(Math.max(0,(Date.now()-(remote.t||Date.now()))/1000),OFFH*3600);
     st=pad(remote);if(sec>30)away(sec);rebuild();save(true);toast('Loaded your progress from another device');
    }else if(!remote||JSON.stringify(remote)!==JSON.stringify(st)){await cloudPush(st)}
   }
@@ -1389,7 +1423,7 @@ function save(q){st.t=Date.now();try{localStorage.setItem(SAVE,JSON.stringify(st
 function start(data){
  st=(data&&data.st)?pad(data.st):(load()||fresh());
  rebuild();setDock();
- const sec=Math.min((Date.now()-(st.t||Date.now()))/1000,8*3600);
+ const sec=Math.min((Date.now()-(st.t||Date.now()))/1000,OFFH*3600);
  if(!(data&&data.st)&&sec>30){const g=away(sec);if(g>0){$('#m-big').textContent='+'+money(g);$('#m-p').textContent=`You were gone ${hms(sec)}. Your dealers kept the lights on.`;$('#modal').hidden=false}}
  ui(true);requestAnimationFrame(t=>{last=t;requestAnimationFrame(frame)});
  cloudStart();
