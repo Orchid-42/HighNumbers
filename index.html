@@ -1126,7 +1126,7 @@ function buildUpgrades(){recalc();upEl.innerHTML='';upRows=[];
 
 /* tabs and buy mode */
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['shop','dealers','upgrades','clout'].forEach(t=>$('#tab-'+t).hidden=t!==tab);ui(true)}));
+ ['shop','dealers','upgrades','clout'].forEach(t=>$('#tab-'+t).hidden=t!==tab);ui(true);window.scrollTo({top:0,left:0,behavior:'instant'})}));
 document.querySelectorAll('#buybar button').forEach(b=>b.addEventListener('click',()=>{st.mode=b.dataset.m;syncMode();ui(true)}));
 function syncMode(){document.querySelectorAll('#buybar button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===st.mode))}
 
